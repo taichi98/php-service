@@ -1,6 +1,6 @@
 <?php
 // Đường dẫn đến Flask API (thay thế bằng URL thực tế trên Railway)
-$flaskApiUrl = "https://flask-service.up.railway.app/zscore-calculator";
+$flaskApiUrl = "https://medixtools.up.railway.app/zscore-calculator";
 
 // Dữ liệu cần gửi tới Flask API
 $data = [
