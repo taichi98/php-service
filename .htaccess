@@ -1,0 +1,10 @@
+# Bật chế độ Rewrite Engine
+RewriteEngine On
+
+# Đặt file index.php làm file mặc định
+DirectoryIndex index.php
+
+# Chuyển hướng tất cả các yêu cầu không phải file hoặc thư mục về index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?page=$1 [L,QSA]
