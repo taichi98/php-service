@@ -1,44 +1,48 @@
 <?php
-// Xử lý khi form được gửi
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Lấy dữ liệu từ form
+    // Nhận dữ liệu từ form
     $sex = $_POST["sex"] ?? null;
-    $ageInDays = $_POST["ageInDays"] ?? null;
-    $height = $_POST["height"] ?? null;
-    $weight = $_POST["weight"] ?? null;
-    $measure = $_POST["measure"] ?? null;
+    $age_option = $_POST["age-option"] ?? null; // Phương pháp nhập tuổi
+    $dob = $_POST["dob"] ?? null; // Ngày sinh
+    $current_day = $_POST["current-day"] ?? null; // Ngày hiện tại
+    $age_in_months = $_POST["age-months"] ?? null; // Tuổi (tháng)
+    $age_in_days = $_POST["age-days"] ?? null; // Tuổi (ngày)
+    $measure = $_POST["measure"] ?? null; // Loại đo (l hoặc h)
+    $height = $_POST["height"] ?? null; // Chiều cao (cm)
+    $weight = $_POST["weight"] ?? null; // Cân nặng (kg)
 
-    // Xác thực dữ liệu đầu vào
-    $errors = [];
-    if (!$sex) $errors[] = "Please select a gender.";
-    if (!$ageInDays || !is_numeric($ageInDays) || $ageInDays < 0) $errors[] = "Please enter a valid age in days.";
-    if (!$height || !is_numeric($height) || $height <= 0) $errors[] = "Please enter a valid height (cm).";
-    if (!$weight || !is_numeric($weight) || $weight <= 0) $errors[] = "Please enter a valid weight (kg).";
-
-    // Kiểm tra chiều cao theo giới hạn
-    $isAbove5Years = $ageInDays > 1856; // > 5 năm (1856 ngày)
-    if ($height) {
-        $height = floatval($height);
-        if ($isAbove5Years && $height < 45) {
-            $errors[] = "Height must be at least 45 cm for children above 5 years.";
-        } elseif (!$isAbove5Years && ($height < 45 || $height > 120)) {
-            $errors[] = "Height must be between 45 cm and 120 cm for children under 5 years.";
+    // Xử lý logic tuổi
+    if ($age_option === "dob" && $dob && $current_day) {
+        $dob_date = DateTime::createFromFormat("d/m/Y", $dob);
+        $current_date = DateTime::createFromFormat("d/m/Y", $current_day);
+        if ($dob_date && $current_date) {
+            $age_in_days = $current_date->diff($dob_date)->days; // Tính số ngày tuổi
+        } else {
+            $errors[] = "Invalid Date of Birth or Current Day format.";
         }
+    } elseif ($age_option === "months" && $age_in_months) {
+        $age_in_days = intval($age_in_months * 30.4375); // Chuyển tháng sang ngày
     }
 
-    // Nếu không có lỗi, gửi dữ liệu tới API Python
+    // Kiểm tra lỗi nhập liệu
+    $errors = [];
+    if (!$sex) $errors[] = "Please select a gender.";
+    if (!$age_in_days || $age_in_days <= 0) $errors[] = "Please enter a valid age.";
+    if (!$height || $height <= 0) $errors[] = "Please enter a valid height.";
+    if (!$weight || $weight <= 0) $errors[] = "Please enter a valid weight.";
+    if (!$measure) $errors[] = "Please select a measurement type.";
+
+    // Nếu không có lỗi, gửi yêu cầu tới API Python
     if (empty($errors)) {
-        // Chuẩn bị payload JSON
         $payload = json_encode([
             "sex" => $sex,
-            "ageInDays" => floatval($ageInDays),
+            "ageInDays" => $age_in_days,
             "height" => floatval($height),
             "weight" => floatval($weight),
             "measure" => $measure,
         ]);
 
-        // Gửi yêu cầu tới API Python
-        $api_url = "http://python_container:5000/zscore-calculator";
+        $api_url = "https://python001.up.railway.app/zscore-calculator";
         $ch = curl_init($api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -52,15 +56,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        // Xử lý phản hồi từ API Python
         if ($http_code === 200) {
-            $response_data = json_decode($response, true);
+            $response_data = json_decode($response, true); // Nhận kết quả từ Python API
         } else {
-            $errors[] = "Error connecting to the Python API. HTTP Code: $http_code.";
+            $errors[] = "Error connecting to Python API.";
         }
     }
 }
 ?>
+
 	
 <!doctype html>
 <html lang="en">
@@ -77,10 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 				applicable regardless of geographical or socio-economic factors.
 			</p>
 			<p>
-				This web site presents the WHO Child Growth Standards. These standards
-				were developed using data collected in the WHO Multicentre Growth
-				Reference Study. The site presents documentation on how the physical
-				growth curves and motor milestone windows of achievement were
+				This web site presents the WHO Child Growth Standards. These standards were developed using data collected in the WHO Multicentre Growth
+				Reference Study. The site presents documentation on how the physical growth curves and motor milestone windows of achievement were
 				developed as well as application tools to support the implementation
 				of the standards
 			</p>
@@ -149,88 +151,72 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 			<div class="calculation-box" style="padding-top: 0px">
 				<h2 class="compact-title">WHO Z-Score Tool</h2>
-				<form id="zscore-form">
-					<div id="gender-select-group" class="gender-group">
-						<label for="gender">Sex</label>
-						<div class="select-group">
-							<button type="button" id="male-btn" onclick="selectGender('male')">Male</button>
-							<button type="button" id="female-btn" onclick="selectGender('female')">Female</button>
-						</div>
-					</div>
-
-					<input type="hidden" id="gender" name="sex" required />
-					<span id="gender-error" style="margin-bottom: 5px; margin-top: -5px; font-size: 12px; color: red; display: none;">
-							Please select a gender.
-					</span>
-
-					<div class="container_date_input">
-						<div class="age-method-container">
-							<label for="age-option">Age Input Method:</label>
-							<select class="dropbtn" id="age-option" onchange="toggleAgeInput()">
-								<option value="dob">Date of Birth</option>
-								<option value="months">Age in Months</option>
-								<option value="days">Age in Days</option>
-							</select>
-						</div>
-
-						<div id="dob-container" class="input-row">
-							<div id="dob-input" class="field_date_input">
-								<label for="dob">Date of Birth:</label>
-								<input type="text" id="dob" placeholder="dd/mm/yyyy" />
-							</div>
-
-							<div id="current-day-input" class="field_date_input">
-								<label for="current-day">Day of Visit:</label>
-								<input type="text" id="current-day" placeholder="dd/mm/yyyy"/>
-							</div>
-						</div>
-
-						<div id="months-input" class="age-months-group" style="display: none">
-							<label for="age-months">Age in Months:</label>
-							<input type="number" id="age-months" name="age-months" min="0" placeholder="Enter age in months"/>
-						</div>
-
-						<div id="days-input" class="age-days-group" style="display: none">
-							<label for="age-days">Age in Days:</label>
-							<input type="number" id="age-days" name="age-days" min="0" placeholder="Enter age in days"/>
-						</div>
-					</div>
-
-					<div id="age-display" style="margin-bottom: 10px; color: red"></div>
-					<span id="dob-error" style="margin-bottom: 5px; margin-top: -15px; font-size: 12px; color: red; display: none;">
-						Please enter Date of Birth.
-					</span>
-					<span id="age-days-error" style="margin-bottom: 5px; margin-top: -15px; font-size: 12px; color: red; display: none;">
-						Please enter the number of days old.
-					</span>
-					<span id="age-months-error" style="margin-bottom: 5px; margin-top: -15px; font-size: 12px; color: red; display: none;">
-							Please enter the age (in months).
-					</span>
-
-					<label for="measured">Measured:</label>
-					<div class="select-group">
-						<button type="button" id="recumbent-btn" onclick="selectMeasured('l'); autoSubmit()" class="active">Recumbent</button>
-						<button type="button" id="standing-btn" onclick="selectMeasured('h'); autoSubmit()">Standing</button>
-					</div>
-					<input type="hidden" id="measured" name="measure" value="l" />
-
-					<div id="height-select-group" class="height-group">
-						<label for="height">Height (cm):</label>
-						<input type="number"style="width: 100%" id="height" class="height-group" name="height" step="0.1" />
-					</div>
-					<span id="height-error" style="margin-bottom: 5px; margin-top: -5px; font-size: 12px; color: red; display: none;"
-						>Please enter the height</span>
-
-					<div id="weight-select-group" class="weight-group">
-						<label for="weight">Weight(kg):</label>
-						<input type="number" style="width: 100%" id="weight" name="weight" step="0.1" />
-					</div>
-					<span
-						id="weight-error"
-						style="margin-bottom: 5px;margin-top: -5px;font-size: 12px;color: red;display: none;">Please enter the weight</span>
-
-					<button type="submit">Calculate</button>
+				<form method="POST">
+				    <div id="gender-select-group" class="gender-group">
+				        <label for="gender">Sex</label>
+				        <div class="select-group">
+				            <button type="button" id="male-btn" onclick="selectGender('male')">Male</button>
+				            <button type="button" id="female-btn" onclick="selectGender('female')">Female</button>
+				        </div>
+				        <input type="hidden" id="gender" name="sex" value="<?= htmlspecialchars($_POST["sex"] ?? '') ?>" required />
+				        <?php if (in_array("Please select a gender.", $errors ?? [])) echo "<p class='error'>Please select a gender.</p>"; ?>
+				    </div>
+				
+				    <div class="container_date_input">
+				        <div class="age-method-container">
+				            <label for="age-option">Age Input Method:</label>
+				            <select class="dropbtn" id="age-option" name="age-option" onchange="toggleAgeInput()">
+				                <option value="dob" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "dob" ? "selected" : "" ?>>Date of Birth</option>
+				                <option value="months" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "months" ? "selected" : "" ?>>Age in Months</option>
+				                <option value="days" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "days" ? "selected" : "" ?>>Age in Days</option>
+				            </select>
+				        </div>
+				
+				        <div id="dob-container" class="input-row" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "dob" ? '' : 'style="display:none;"' ?>>
+				            <div id="dob-input" class="field_date_input">
+				                <label for="dob">Date of Birth:</label>
+				                <input type="text" id="dob" name="dob" value="<?= htmlspecialchars($_POST["dob"] ?? '') ?>" placeholder="dd/mm/yyyy" />
+				            </div>
+				
+				            <div id="current-day-input" class="field_date_input">
+				                <label for="current-day">Day of Visit:</label>
+				                <input type="text" id="current-day" name="current-day" value="<?= htmlspecialchars($_POST["current-day"] ?? '') ?>" placeholder="dd/mm/yyyy" />
+				            </div>
+				        </div>
+				
+				        <div id="months-input" class="age-months-group" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "months" ? '' : 'style="display:none;"' ?>>
+				            <label for="age-months">Age in Months:</label>
+				            <input type="number" id="age-months" name="age-months" value="<?= htmlspecialchars($_POST["age-months"] ?? '') ?>" min="0" placeholder="Enter age in months" />
+				        </div>
+				
+				        <div id="days-input" class="age-days-group" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "days" ? '' : 'style="display:none;"' ?>>
+				            <label for="age-days">Age in Days:</label>
+				            <input type="number" id="age-days" name="age-days" value="<?= htmlspecialchars($_POST["age-days"] ?? '') ?>" min="0" placeholder="Enter age in days" />
+				        </div>
+				    </div>
+				
+				    <label for="measured">Measured:</label>
+				    <div class="select-group">
+				        <button type="button" id="recumbent-btn" onclick="selectMeasured('l')">Recumbent</button>
+				        <button type="button" id="standing-btn" onclick="selectMeasured('h')">Standing</button>
+				    </div>
+				    <input type="hidden" id="measured" name="measure" value="<?= htmlspecialchars($_POST["measure"] ?? 'l') ?>" />
+				
+				    <div id="height-select-group" class="height-group">
+				        <label for="height">Height (cm):</label>
+				        <input type="number" id="height" name="height" value="<?= htmlspecialchars($_POST["height"] ?? '') ?>" step="0.1" required />
+				        <?php if (in_array("Please enter a valid height.", $errors ?? [])) echo "<p class='error'>Please enter a valid height.</p>"; ?>
+				    </div>
+				
+				    <div id="weight-select-group" class="weight-group">
+				        <label for="weight">Weight (kg):</label>
+				        <input type="number" id="weight" name="weight" value="<?= htmlspecialchars($_POST["weight"] ?? '') ?>" step="0.1" required />
+				        <?php if (in_array("Please enter a valid weight.", $errors ?? [])) echo "<p class='error'>Please enter a valid weight.</p>"; ?>
+				    </div>
+				
+				    <button type="submit">Calculate</button>
 				</form>
+
 				<div id="result" class="result-container">
 					<div style="font-size: 1.17em; font-weight: bold; margin-bottom: 8px; padding-left: 5px;">Result:</div>
 					<div id="spinner" style="display: none; text-align: center">
