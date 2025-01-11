@@ -3,7 +3,7 @@
 
 <body>
 <?php include 'sidebar.php'; ?>
-
+<div id="main">
     <div class="container_of_content">
         <div class="description-box">
             <h3>About Ideal body weight (IBW)</h3>
@@ -61,5 +61,6 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>
