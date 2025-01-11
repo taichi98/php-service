@@ -1,19 +1,6 @@
 <?php
-// Lấy đường dẫn từ REQUEST_URI
-$request = $_SERVER['REQUEST_URI'];
-
-// Loại bỏ dấu "/" ở đầu và cuối đường dẫn
-$request = trim($request, '/');
-
-// Loại bỏ chuỗi query string (nếu có)
-$request = explode('?', $request)[0];
-
-// Xử lý URL gốc hoặc mặc định
-if ($request === '' || $request === 'index') {
-    $page = 'cpap'; // Trang mặc định
-} else {
-    $page = $request;
-}
+// Lấy đường dẫn trang từ URL
+$page = $_GET['page'] ?? 'cpap';
 
 // Đặt tiêu đề trang dựa trên lựa chọn
 switch ($page) {
