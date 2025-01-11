@@ -20,9 +20,9 @@
                 break;
             case 'zscore-calculator':
                 echo '<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>';
-                echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>'
-                echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>'
-                echo '<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>'
+                echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>';
+                echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>';
+                echo '<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>';
                 break;
         }
     }
