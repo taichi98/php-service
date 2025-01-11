@@ -10,6 +10,8 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # Sao chép mã nguồn PHP
 WORKDIR /var/www/html
 COPY . /var/www/html
+COPY icon.png /var/www/html/
+
 # Đảm bảo quyền truy cập
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 RUN echo "DirectoryIndex index.php" > /etc/apache2/conf-available/directory-index.conf \
