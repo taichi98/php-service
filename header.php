@@ -24,6 +24,9 @@
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>';
                 echo '<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>';
                 break;
+            case 'lightCriteria':
+                echo '<link rel="stylesheet" href="/lightCriteria.css">';
+                break;
         }
     }
     ?>
