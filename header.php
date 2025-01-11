@@ -8,6 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="/style.css" />
     <script src="/script.js"></script>
-    <title><?php echo $title ?? 'ICU Tools'; ?></title>
+    <title><?php echo $pageTitle ?? 'ICU Tools'; ?></title>
     <link rel="icon" href="/icon.png" type="image/png" />
 </head>
