@@ -3,11 +3,11 @@
 
 <?php 
 	$title = "CPAP Calculator"; 
-	include '/header.php'; 
+	include 'header.php'; 
 ?>
 
 <body>
-    <?php include '/sidebar.php'; ?>
+    <?php include 'sidebar.php'; ?>
     <div class="container">
         <h2>CPAP Calculator</h2>
 
