@@ -25,11 +25,12 @@
 </div>
 
 <div id="mySidebar" class="sidebar">
-    <a id="item1" href="/cpap.php">CPAP Calculator</a>
-    <a id="item2" href="/ett.php">ETT Size</a>
-    <a id="item3" href="/bmi.php">BMI & BSA Calculator</a>
-    <a id="item4" href="/lightCriteria.php">Light's Criteria</a>
-    <a id="item5" href="/ibw.php">Ideal Body Weight</a>
-    <a id="item6" href="/zscore.php">WHO Z-Score</a>
+    <a href="?page=cpap">CPAP Calculator</a>
+    <a href="?page=ett">ETT Size</a>
+    <a href="?page=bmi">BMI & BSA Calculator</a>
+    <a href="?page=lightCriteria">Light's Criteria</a>
+    <a href="?page=ibw">Ideal Body Weight</a>
+    <a href="?page=zscore-calculator">WHO Z-Score</a>
 </div>
+
 <div id="myOverlay" class="overlay" onclick="toggleSidebar()"></div>
