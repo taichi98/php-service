@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <title><?php echo $pageTitle ?? 'ICU Tools'; ?></title>
+    <link rel="icon" href="/icon.png" type="image/png">
     <link rel="stylesheet" href="/style.css" />
     <script src="/script.js"></script>
-    <title><?php echo $pageTitle ?? 'ICU Tools'; ?></title>
 </head>
