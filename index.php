@@ -1,12 +1,19 @@
 <?php
 // Lấy đường dẫn từ REQUEST_URI
 $request = $_SERVER['REQUEST_URI'];
+
 // Loại bỏ dấu "/" ở đầu và cuối đường dẫn
 $request = trim($request, '/');
-// Tách đường dẫn thành các phần
-$segments = explode('/', $request);
-// Trang mặc định là "cpap"
-$page = $segments[0] ?? 'cpap';
+
+// Loại bỏ chuỗi query string (nếu có)
+$request = explode('?', $request)[0];
+
+// Xử lý URL gốc hoặc mặc định
+if ($request === '' || $request === 'index') {
+    $page = 'cpap'; // Trang mặc định
+} else {
+    $page = $request;
+}
 
 // Đặt tiêu đề trang dựa trên lựa chọn
 switch ($page) {
@@ -37,7 +44,7 @@ switch ($page) {
 // Chèn header
 include 'header.php';
 
-// Kiểm tra trang và include nội dung tương ứng
+// Kiểm tra và include nội dung tương ứng
 switch ($page) {
     case 'cpap':
         include 'cpap.php';
@@ -62,5 +69,4 @@ switch ($page) {
         break;
 }
 
-// Kết thúc HTML
 ?>
