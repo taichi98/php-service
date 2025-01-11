@@ -19,6 +19,7 @@
                 echo '<link rel="stylesheet" href="/bmi.css">';
                 break;
             case 'zscore-calculator':
+                echo '<link rel="stylesheet" href="/zscore-calculator.css">';
                 echo '<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>';
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>';
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>';
