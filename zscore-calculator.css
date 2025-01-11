@@ -1,0 +1,66 @@
+p {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	padding-left: 5px;
+}
+/* Thêm bo góc cho ô input */
+input[type="text"],
+input[type="number"],
+select {
+	border: 1px solid #ccc;
+	border-radius: 5px; /* Bo góc */
+	padding: 8px;
+	font-size: 14px;
+	box-sizing: border-box;
+	transition:
+		border 0.3s,
+		box-shadow 0.3s;
+}
+
+/* Hiệu ứng khi input được focus */
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+	border: 1.5px dashed #007bff; /* Viền xanh nét đứt */
+	outline: none;
+	box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.zscore-form {
+	margin-bottom: 20px;
+}
+
+.zscore-form label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+.result-container {
+	max-width: 400px;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #117d67;
+	padding: 10px;
+	border-radius: 10px;
+	color: white;
+	margin: 20px 0;
+	box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.result-item {
+	display: flex;
+	flex-direction: column;
+	align-items: left;
+	justify-content: left;
+	font-size: 17px;
+	flex: 1;
+	padding: 5px 10px;
+}
+
+.dropbtn {
+	padding: 5px;
+	font-size: 14px;
+	cursor: pointer;
+	border-radius: 5px;
+}
