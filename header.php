@@ -9,8 +9,8 @@
     // Thêm style riêng cho từng trang
     if (isset($page)) {
         switch ($page) {
-            case 'cpap':
-                echo '<link rel="stylesheet" href="/cpap.css">';
+            case 'ibw':
+                echo '<link rel="stylesheet" href="/ibw.css">';
                 break;
             case 'ett':
                 echo '<link rel="stylesheet" href="/ett.css">';
