@@ -1,6 +1,12 @@
 <?php
-// Lấy đường dẫn trang từ URL
-$page = $_GET['page'] ?? 'cpap';
+// Lấy đường dẫn từ REQUEST_URI
+$request = $_SERVER['REQUEST_URI'];
+// Loại bỏ dấu "/" ở đầu và cuối đường dẫn
+$request = trim($request, '/');
+// Tách đường dẫn thành các phần
+$segments = explode('/', $request);
+// Trang mặc định là "cpap"
+$page = $segments[0] ?? 'cpap';
 
 // Đặt tiêu đề trang dựa trên lựa chọn
 switch ($page) {
