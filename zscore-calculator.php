@@ -1,3 +1,67 @@
+<?php
+// Xử lý khi form được gửi
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Lấy dữ liệu từ form
+    $sex = $_POST["sex"] ?? null;
+    $ageInDays = $_POST["ageInDays"] ?? null;
+    $height = $_POST["height"] ?? null;
+    $weight = $_POST["weight"] ?? null;
+    $measure = $_POST["measure"] ?? null;
+
+    // Xác thực dữ liệu đầu vào
+    $errors = [];
+    if (!$sex) $errors[] = "Please select a gender.";
+    if (!$ageInDays || !is_numeric($ageInDays) || $ageInDays < 0) $errors[] = "Please enter a valid age in days.";
+    if (!$height || !is_numeric($height) || $height <= 0) $errors[] = "Please enter a valid height (cm).";
+    if (!$weight || !is_numeric($weight) || $weight <= 0) $errors[] = "Please enter a valid weight (kg).";
+
+    // Kiểm tra chiều cao theo giới hạn
+    $isAbove5Years = $ageInDays > 1856; // > 5 năm (1856 ngày)
+    if ($height) {
+        $height = floatval($height);
+        if ($isAbove5Years && $height < 45) {
+            $errors[] = "Height must be at least 45 cm for children above 5 years.";
+        } elseif (!$isAbove5Years && ($height < 45 || $height > 120)) {
+            $errors[] = "Height must be between 45 cm and 120 cm for children under 5 years.";
+        }
+    }
+
+    // Nếu không có lỗi, gửi dữ liệu tới API Python
+    if (empty($errors)) {
+        // Chuẩn bị payload JSON
+        $payload = json_encode([
+            "sex" => $sex,
+            "ageInDays" => floatval($ageInDays),
+            "height" => floatval($height),
+            "weight" => floatval($weight),
+            "measure" => $measure,
+        ]);
+
+        // Gửi yêu cầu tới API Python
+        $api_url = "http://python_container:5000/zscore-calculator";
+        $ch = curl_init($api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Content-Length: " . strlen($payload),
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Xử lý phản hồi từ API Python
+        if ($http_code === 200) {
+            $response_data = json_decode($response, true);
+        } else {
+            $errors[] = "Error connecting to the Python API. HTTP Code: $http_code.";
+        }
+    }
+}
+?>
+	
 <!doctype html>
 <html lang="en">
 
@@ -7,12 +71,9 @@
 		<div class="box-content">
 			<h2 class="compact-title">Child Growth Standards</h2>
 			<p>
-				Monitoring a child's growth is an essential aspect of ensuring their
-				health and well-being. The WHO Child Growth Standards were
-				meticulously developed based on comprehensive data collected through
-				the Multicentre Growth Reference Study (MGRS). These standards provide
-				a robust foundation for assessing the growth and development of
-				children worldwide, offering benchmarks that are universally
+				Monitoring a child's growth is an essential aspect of ensuring their health and well-being. The WHO Child Growth Standards were
+				meticulously developed based on comprehensive data collected through the Multicentre Growth Reference Study (MGRS). These standards provide
+				a robust foundation for assessing the growth and development ofchildren worldwide, offering benchmarks that are universally
 				applicable regardless of geographical or socio-economic factors.
 			</p>
 			<p>
@@ -178,7 +239,7 @@
 					<p id="text1">Please fill out required fields.</p>
 					<div id="resultZS" style="display: none">
 						<div class="result-item">
-							<p id="bmi-result"></p>
+							<p id="bmi-result"><?= htmlspecialchars($response_data["bmi"]) ?></p>
 							<p id="weight_lenhei_result">
 									<span class="result-title">Weight for Length:</span>
 									<span class="result-value" id="weight_lenhei_value"></span>
@@ -191,7 +252,7 @@
 									<span class="result-title">Length for Age:</span>
 									<span class="result-value" id="lenhei_age_value"></span>
 							</p>
-							<p id="bmiage-result"></p>
+							<p id="bmiage-result"><?= htmlspecialchars($response_data["bmi_age"]["zscore"]) ?></p>
 						</div>
 					</div>
 				</div>
