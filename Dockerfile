@@ -9,23 +9,24 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install gd
 
-# Kích hoạt mod_rewrite để hỗ trợ .htaccess và URL đẹp
+# Kích hoạt mod_rewrite để hỗ trợ .htaccess
 RUN a2enmod rewrite
 
 # Sao chép mã nguồn vào thư mục gốc của Apache
 WORKDIR /var/www/html
 COPY . /var/www/html
 
-# Thêm quyền truy cập cho thư mục /var/www/html
+# Đảm bảo quyền truy cập
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
-# Cấu hình Apache để cho phép sử dụng .htaccess
-RUN echo "<Directory /var/www/html>
-    Options Indexes FollowSymLinks
-    AllowOverride All
-    Require all granted
-</Directory>" > /etc/apache2/conf-available/custom-directory.conf \
-    && a2enconf custom-directory
+# Thêm cấu hình Apache để hỗ trợ .htaccess
+RUN echo "<VirtualHost *:80>
+    DocumentRoot /var/www/html
+    <Directory /var/www/html>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
 # Mở cổng mặc định của Apache
 EXPOSE 80
