@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<?php 
-	$title = "CPAP Calculator"; 
-	include 'header.php'; 
-?>
+<?php include 'header.php'; ?>
 
 <body>
     <?php include 'sidebar.php'; ?>
