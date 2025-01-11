@@ -2,10 +2,12 @@
 // Đường dẫn đến Flask API (thay thế bằng URL thực tế trên Railway)
 $flaskApiUrl = "https://medixtools.up.railway.app/zscore-calculator";
 
-// Dữ liệu cần gửi tới Flask API
+// Tạo dữ liệu gửi tới Flask API
 $data = [
-    "weight" => 70, // Thay bằng trọng lượng thực tế
-    "height" => 175 // Thay bằng chiều cao thực tế
+    "sex" => "male",             // Giới tính (male hoặc female)
+    "ageInDays" => 365,          // Tuổi (365 ngày = 1 năm)
+    "height" => 120.0,           // Chiều cao (cm)
+    "weight" => 25.0             // Cân nặng (kg)
 ];
 
 // Thiết lập context cho yêu cầu HTTP POST
