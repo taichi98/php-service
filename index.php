@@ -32,28 +32,55 @@ switch ($page) {
 include 'header.php';
 
 // Kiểm tra và include nội dung tương ứng
-switch ($page) {
-    case 'cpap':
-        include 'cpap.php';
-        break;
-    case 'ett':
-        include 'ett.php';
-        break;
-    case 'ibw':
-        include 'ibw.php';
-        break;
-    case 'zscore-calculator':
-        include 'zscore-calculator.php';
-        break;
-    case 'bmi':
-        include 'bmi.php';
-        break;
-    case 'lightCriteria':
-        include 'lightCriteria.php';
-        break;
-    default:
-        include '404.php'; // Trang lỗi
-        break;
+try {
+    switch ($page) {
+        case 'cpap':
+            if (file_exists('cpap.php')) {
+                include 'cpap.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        case 'ett':
+            if (file_exists('ett.php')) {
+                include 'ett.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        case 'ibw':
+            if (file_exists('ibw.php')) {
+                include 'ibw.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        case 'zscore-calculator':
+            if (file_exists('zscore-calculator.php')) {
+                include 'zscore-calculator.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        case 'bmi':
+            if (file_exists('bmi.php')) {
+                include 'bmi.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        case 'lightCriteria':
+            if (file_exists('lightCriteria.php')) {
+                include 'lightCriteria.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        default:
+            include '404.php'; // Trang lỗi
+            break;
+    }
+} catch (Exception $e) {
+    include '404.php'; // Hiển thị trang lỗi nếu không tìm thấy file
 }
-
 ?>
