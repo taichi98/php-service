@@ -594,36 +594,36 @@
 
 				// Thêm ageInDays vào FormData
 				formData.append("ageInDays", ageInDays);
-				fetch("zscore_processor.php", {
-	        method: "POST",
-	        body: formData,
-	    	})
-	        .then(response => {
-	            if (!response.ok) {
-	                throw new Error("Network response was not ok");
-	            }
-	            return response.text();
-	        })
-	        .then(html => {
-	            spinner.style.display = "none";
-	            resultBox.style.display = "block";
-	            resultBox.innerHTML = html; // Cập nhật nội dung kết quả
-	        })
-	        .catch(error => {
-	            console.error("There was a problem with the fetch operation:", error);
-	            alert("Đã xảy ra lỗi khi xử lý yêu cầu.");
-	            spinner.style.display = "none";
-	        });
-
-				// Ẩn placeholder
-				document.getElementById("text1").style.display = "none";
-			 	this.submit();
+	            fetch("", { // "" để gọi lại chính tệp PHP hiện tại
+	                method: "POST",
+	                body: formData
+	            })
+		        .then(response => {
+		            if (!response.ok) {
+		                throw new Error("Network response was not ok");
+		            }
+		            return response.text();
+		        })
+		        .then(html => {
+		            spinner.style.display = "none";
+		            resultBox.style.display = "block";
+		            resultBox.innerHTML = html; // Cập nhật nội dung kết quả
+		        })
+		        .catch(error => {
+		            console.error("There was a problem with the fetch operation:", error);
+		            alert("Đã xảy ra lỗi khi xử lý yêu cầu.");
+		            spinner.style.display = "none";
+		        });
+	
+					// Ẩn placeholder
+					document.getElementById("text1").style.display = "none";
+				 	this.submit();
+				});
+	
+			// Gọi observeContentChanges sau khi trang đã tải xong
+			document.addEventListener("DOMContentLoaded", function () {
+				observeContentChanges("collapsible-content");
 			});
-
-		// Gọi observeContentChanges sau khi trang đã tải xong
-		document.addEventListener("DOMContentLoaded", function () {
-			observeContentChanges("collapsible-content");
-		});
 
 	</script>
 
