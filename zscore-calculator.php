@@ -398,12 +398,10 @@
 				}
 			});
 
-		// Gọi hàm updateChartsBasedOnSelection() khi có sự thay đổi dropdown
+		// Gọi hàm updateChartsBasedOnSelection() khi có sự thay đổi dropdown =====================================
 		document.getElementById("chart-type-selector").addEventListener("change", updateChartsBasedOnSelection);
 		document.getElementById("zscore-form").addEventListener("submit", function (event) {
-				
 				event.preventDefault();
-
 				const spinner = document.getElementById("spinner");
 				const resultBox = document.getElementById("resultZS");
 				const formData = new FormData(this);
@@ -596,6 +594,27 @@
 
 				// Thêm ageInDays vào FormData
 				formData.append("ageInDays", ageInDays);
+				fetch("zscore_processor.php", {
+	        method: "POST",
+	        body: formData,
+	    	})
+	        .then(response => {
+	            if (!response.ok) {
+	                throw new Error("Network response was not ok");
+	            }
+	            return response.text();
+	        })
+	        .then(html => {
+	            spinner.style.display = "none";
+	            resultBox.style.display = "block";
+	            resultBox.innerHTML = html; // Cập nhật nội dung kết quả
+	        })
+	        .catch(error => {
+	            console.error("There was a problem with the fetch operation:", error);
+	            alert("Đã xảy ra lỗi khi xử lý yêu cầu.");
+	            spinner.style.display = "none";
+	        });
+
 				// Ẩn placeholder
 				document.getElementById("text1").style.display = "none";
 			 	this.submit();
