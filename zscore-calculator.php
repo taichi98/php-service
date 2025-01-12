@@ -1,70 +1,3 @@
-<?php
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Nhận dữ liệu từ form
-    $sex = $_POST["sex"] ?? null;
-    $age_option = $_POST["age-option"] ?? null; // Phương pháp nhập tuổi
-    $dob = $_POST["dob"] ?? null; // Ngày sinh
-    $current_day = $_POST["current-day"] ?? null; // Ngày hiện tại
-    $age_in_months = $_POST["age-months"] ?? null; // Tuổi (tháng)
-    $age_in_days = $_POST["age-days"] ?? null; // Tuổi (ngày)
-    $measure = $_POST["measure"] ?? null; // Loại đo (l hoặc h)
-    $height = $_POST["height"] ?? null; // Chiều cao (cm)
-    $weight = $_POST["weight"] ?? null; // Cân nặng (kg)
-
-    // Xử lý logic tuổi
-    if ($age_option === "dob" && $dob && $current_day) {
-        $dob_date = DateTime::createFromFormat("d/m/Y", $dob);
-        $current_date = DateTime::createFromFormat("d/m/Y", $current_day);
-        if ($dob_date && $current_date) {
-            $age_in_days = $current_date->diff($dob_date)->days; // Tính số ngày tuổi
-        } else {
-            $errors[] = "Invalid Date of Birth or Current Day format.";
-        }
-    } elseif ($age_option === "months" && $age_in_months) {
-        $age_in_days = intval($age_in_months * 30.4375); // Chuyển tháng sang ngày
-    }
-
-    // Kiểm tra lỗi nhập liệu
-    $errors = [];
-    if (!$sex) $errors[] = "Please select a gender.";
-    if (!$age_in_days || $age_in_days <= 0) $errors[] = "Please enter a valid age.";
-    if (!$height || $height <= 0) $errors[] = "Please enter a valid height.";
-    if (!$weight || $weight <= 0) $errors[] = "Please enter a valid weight.";
-    if (!$measure) $errors[] = "Please select a measurement type.";
-
-    // Nếu không có lỗi, gửi yêu cầu tới API Python
-    if (empty($errors)) {
-        $payload = json_encode([
-            "sex" => $sex,
-            "ageInDays" => $age_in_days,
-            "height" => floatval($height),
-            "weight" => floatval($weight),
-            "measure" => $measure,
-        ]);
-
-        $api_url = "https://python001.up.railway.app/zscore-calculator";
-        $ch = curl_init($api_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Content-Length: " . strlen($payload),
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-
-        $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($http_code === 200) {
-            $response_data = json_decode($response, true); // Nhận kết quả từ Python API
-        } else {
-            $errors[] = "Error connecting to Python API.";
-        }
-    }
-}
-?>
-
 	
 <!doctype html>
 <html lang="en">
@@ -160,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 							</div>
 						</div>
 
-        				<input type="hidden" id="gender" name="sex" value="<?= htmlspecialchars($_POST["sex"] ?? '') ?>" required />
+        				<input type="hidden" id="gender" name="sex"  required />
 						<span id="gender-error" style="margin-bottom: 5px; margin-top: -5px; font-size: 12px; color: red; display: none;">
 								Please select a gender.
 						</span>
@@ -168,33 +101,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 						<div class="container_date_input">
 							<div class="age-method-container">
 								<label for="age-option">Age Input Method:</label>
-					            <select class="dropbtn" id="age-option" name="age-option" onchange="toggleAgeInput()">
-					                <option value="dob" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "dob" ? "selected" : "" ?>>Date of Birth</option>
-					                <option value="months" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "months" ? "selected" : "" ?>>Age in Months</option>
-					                <option value="days" <?= isset($_POST["age-option"]) && $_POST["age-option"] === "days" ? "selected" : "" ?>>Age in Days</option>
-					            </select>
+					            <select class="dropbtn" id="age-option" onchange="toggleAgeInput()">
+								<option value="dob">Date of Birth</option>
+								<option value="months">Age in Months</option>
+								<option value="days">Age in Days</option>
+						    </select>
 							</div>
 
 							<div id="dob-container" class="input-row">
 								<div id="dob-input" class="field_date_input">
 									<label for="dob">Date of Birth:</label>
-                					<input type="text" id="dob" name="dob" value="<?= htmlspecialchars($_POST["dob"] ?? '') ?>" placeholder="dd/mm/yyyy" />
+                					<input type="text" id="dob" name="dob" placeholder="dd/mm/yyyy" />
 								</div>
 
 								<div id="current-day-input" class="field_date_input">
 									<label for="current-day">Day of Visit:</label>
-                					<input type="text" id="current-day" name="current-day" value="<?= htmlspecialchars($_POST["current-day"] ?? '') ?>" placeholder="dd/mm/yyyy" />
+                					<input type="text" id="current-day" name="current-day" placeholder="dd/mm/yyyy" />
 								</div>
 							</div>
 
 							<div id="months-input" class="age-months-group" style="display: none">
 								<label for="age-months">Age in Months:</label>
-           	 					<input type="number" id="age-months" name="age-months" value="<?= htmlspecialchars($_POST["age-months"] ?? '') ?>" min="0" placeholder="Enter age in months" />
+           	 					<input type="number" id="age-months" name="age-months" min="0" placeholder="Enter age in months" />
 							</div>
 
 							<div id="days-input" class="age-days-group" style="display: none">
 								<label for="age-days">Age in Days:</label>
-            					<input type="number" id="age-days" name="age-days" value="<?= htmlspecialchars($_POST["age-days"] ?? '') ?>" min="0" placeholder="Enter age in days" />
+            					<input type="number" id="age-days" name="age-days" min="0" placeholder="Enter age in days" />
 							</div>
 						</div>
 
@@ -214,18 +147,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 							<button type="button" id="recumbent-btn" onclick="selectMeasured('l'); autoSubmit()" class="active">Recumbent</button>
 							<button type="button" id="standing-btn" onclick="selectMeasured('h'); autoSubmit()">Standing</button>
 						</div>
-    					<input type="hidden" id="measured" name="measure" value="<?= htmlspecialchars($_POST["measure"] ?? 'l') ?>" />
+    					<input type="hidden" id="measured" name="measure"  />
 
 						<div id="height-select-group" class="height-group">
 							<label for="height">Height (cm):</label>
-							<input type="number"style="width: 100%" id="height" value="<?= htmlspecialchars($_POST["height"] ?? '') ?>" class="height-group" name="height" step="0.1" />
+							<input type="number"style="width: 100%" id="height" class="height-group" name="height" step="0.1" />
 						</div>
 						<span id="height-error" style="margin-bottom: 5px; margin-top: -5px; font-size: 12px; color: red; display: none;"
 							>Please enter the height</span>
 
 						<div id="weight-select-group" class="weight-group">
 							<label for="weight">Weight(kg):</label>
-							<input type="number" style="width: 100%" id="weight" name="weight" value="<?= htmlspecialchars($_POST["weight"] ?? '') ?>" step="0.1" />
+							<input type="number" style="width: 100%" id="weight" name="weight" step="0.1" />
 						</div>
 						<span
 							id="weight-error"
@@ -242,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 					<p id="text1">Please fill out required fields.</p>
 					<div id="resultZS" style="display: none">
 						<div class="result-item">
-							<p id="bmi-result"><?= htmlspecialchars($response_data["bmi"]) ?></p>
+							<p id="bmi-result"></p>
 							<p id="weight_lenhei_result">
 									<span class="result-title">Weight for Length:</span>
 									<span class="result-value" id="weight_lenhei_value"></span>
@@ -255,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 									<span class="result-title">Length for Age:</span>
 									<span class="result-value" id="lenhei_age_value"></span>
 							</p>
-							<p id="bmiage-result"><?= htmlspecialchars($response_data["bmi_age"]["zscore"]) ?></p>
+							<p id="bmiage-result"></p>
 						</div>
 					</div>
 				</div>
@@ -584,7 +517,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 				formData.append("ageInDays", ageInDays);
 
 				// Gửi request
-				fetch("/zscore-calculator", {
+				fetch("https://python001.up.railway.app/zscore-calculator", {
 						method: "POST",
 						body: formData,
 				})
