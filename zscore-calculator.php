@@ -1,4 +1,85 @@
-	
+	<?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $sex = $_POST['sex'] ?? null;
+        $dob = $_POST['dob'] ?? null;
+        $currentDay = $_POST['current-day'] ?? null;
+        $ageMonths = $_POST['age-months'] ?? null;
+        $ageDays = $_POST['age-days'] ?? null;
+        $height = $_POST['height'] ?? null;
+        $weight = $_POST['weight'] ?? null;
+
+        $ageInDays = null;
+        if ($dob && $currentDay) {
+            $dobDate = new DateTime($dob);
+            $currentDate = new DateTime($currentDay);
+            $ageInDays = $dobDate->diff($currentDate)->days;
+        } elseif ($ageMonths !== null) {
+            $ageInDays = $ageMonths * 30.44;
+        } elseif ($ageDays !== null) {
+            $ageInDays = $ageDays;
+        }
+
+        $postData = [
+            'sex' => $sex,
+            'ageInDays' => $ageInDays,
+            'height' => $height,
+            'weight' => $weight,
+        ];
+
+        $url = "https://python001.up.railway.app/zscore-calculator";
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded'
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200) {
+            $data = json_decode($response, true);
+            echo "<div class='result-box-zscore'>";
+            echo "<div class='collapsible-header' onclick=\"toggleCollapse('collapsible-content', 'arrow-icon')\">";
+            echo "<img src='/data/down.png' alt='Arrow Icon' class='arrow-icon' id='arrow-icon'/>";
+            echo "<h2 class='compact-title'>Growth Chart Results (WHO Standards)</h2>";
+            echo "</div>";
+
+            echo "<div class='collapsible-content' id='collapsible-content' style='visibility: visible;'>";
+            echo "<fieldset id='bfaresult'>";
+            echo "<legend>BMI Results</legend>";
+            echo "<ol><li class='results'>BMI: {$data['bmi']}</li>";
+            echo "<li class='results'>Z-Score: {$data['bmi_age']['zscore']} ({$data['bmi_age']['percentile']}th percentile)</li></ol>";
+            echo "</fieldset>";
+            echo "<div class='plot-container' id='bmi-chart'></div>";
+
+            echo "<fieldset id='wfaresult'>";
+            echo "<legend>WFA Results</legend>";
+            echo "<ol><li class='results'>Z-Score: {$data['wei']['zscore']} ({$data['wei']['percentile']}th percentile)</li></ol>";
+            echo "</fieldset>";
+            echo "<div class='plot-container' id='wfa-chart'></div>";
+
+            echo "<fieldset id='lhfaresult'>";
+            echo "<legend>LHFA Results</legend>";
+            echo "<ol><li class='results'>Z-Score: {$data['lenhei_age']['zscore']} ({$data['lenhei_age']['percentile']}th percentile)</li></ol>";
+            echo "</fieldset>";
+            echo "<div class='plot-container' id='lhfa-chart'></div>";
+
+            echo "<fieldset id='wflhresult'>";
+            echo "<legend>WFLH Results</legend>";
+            echo "<ol><li class='results'>Z-Score: {$data['wfl']['zscore']} ({$data['wfl']['percentile']}th percentile)</li></ol>";
+            echo "</fieldset>";
+            echo "<div class='plot-container' id='wflh-chart'></div>";
+            echo "</div></div>";
+        } else {
+            echo "<p style='color: red;'>Error: Unable to fetch data from the server. Please try again later.</p>";
+        }
+    }
+  ?>
+
 <!doctype html>
 <html lang="en">
 
@@ -271,7 +352,7 @@
 				return `${day}/${month}/${year}`;
 			}
 		});
-
+//=======================================================================================================
 		function updateResultField(resultId, resultSideId, boxId, label, dataKey) {
 				const resultElement = document.getElementById(resultId);
 				const resultSideElement = document.getElementById(resultSideId);
@@ -295,11 +376,11 @@
 				}
 		}
 		
-		// Thêm sự kiện để cập nhật tuổi khi giá trị dob hoặc current-day thay đổi
+// Thêm sự kiện để cập nhật tuổi khi giá trị dob hoặc current-day thay đổi =====================================
 		document.getElementById("dob").addEventListener("change", updateAgeDisplay);
 		document.getElementById("current-day").addEventListener("change", updateAgeDisplay);
 
-		// Cập nhật trạng thái đo khi nhập số tháng
+// Cập nhật trạng thái đo khi nhập số tháng ===================================================================
 		document.getElementById("age-months").addEventListener("input", function () {
 				const ageMonths = parseInt(this.value, 10);
 				if (!isNaN(ageMonths)) {
@@ -308,7 +389,7 @@
 				}
 			});
 
-		// Cập nhật trạng thái đo khi nhập số ngày
+		// Cập nhật trạng thái đo khi nhập số ngày ================================================================
 		document.getElementById("age-days").addEventListener("input", function () {
 				const ageDays = parseInt(this.value, 10);
 				if (!isNaN(ageDays)) {
@@ -515,69 +596,9 @@
 
 				// Thêm ageInDays vào FormData
 				formData.append("ageInDays", ageInDays);
-
-				// Gửi request
-				fetch("https://python001.up.railway.app/zscore-calculator", {
-						method: "POST",
-						body: formData,
-				})
-						.then((response) => {
-								if (!response.ok) throw new Error("Network response was not ok");
-								return response.json();
-						})
-						.then((responseData) => {
-								data = responseData;
-								spinner.style.display = "none";
-
-								updateChartsBasedOnSelection();
-
-								const measured = document.getElementById("measured").value;
-
-								// Cập nhật các kết quả
-								document.getElementById("bmi-result-side").textContent = `${data.bmi}`;
-								document.getElementById("bmi-result").textContent = `BMI: ${data.bmi}`;
-								document.getElementById("bmiage-result-side").textContent = `${data.bmi_age.zscore} (${data.bmi_age.percentile}th)`;
-								document.getElementById("bmiage-result").textContent = `BMI for Age: ${data.bmi_age.zscore} (${data.bmi_age.percentile}th)`;
-
-								updateResultField(
-										"weight_lenhei_result",
-										"weight_lenhei_result_side",
-										"wflh-box",
-										measured === "l" ? "Weight for Length:" : "Weight for Height:",
-										data.wfl
-								);
-
-								updateResultField(
-										"lenhei_age_result",
-										"lenhei_age_result_side",
-										"lhfaresult",
-										measured === "l" ? "Length for Age:" : "Height for Age:",
-										data.lenhei_age
-								);
-
-								updateResultField(
-										"wei-result",
-										"wei-result-side",
-										"wei-box",
-										"Weight for Age:",
-										data.wei
-								);
-
-								// Hiển thị resultBox
-								resultBox.style.display = "flex";
-								updateResults(data);
-						})
-						.catch((error) => {
-								console.error("There was a problem with the fetch operation:", error);
-								alert("Đã xảy ra lỗi khi xử lý yêu cầu.");
-								spinner.style.display = "none";
-								document.getElementById("text1").style.display = "block";
-								data = "";
-								updateResults(data);
-						});
-
 				// Ẩn placeholder
 				document.getElementById("text1").style.display = "none";
+			 	this.submit();
 			});
 
 		// Gọi observeContentChanges sau khi trang đã tải xong
