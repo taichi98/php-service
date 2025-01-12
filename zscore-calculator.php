@@ -401,199 +401,199 @@
 		// Gọi hàm updateChartsBasedOnSelection() khi có sự thay đổi dropdown =====================================
 		document.getElementById("chart-type-selector").addEventListener("change", updateChartsBasedOnSelection);
 		document.getElementById("zscore-form").addEventListener("submit", function (event) {
-				event.preventDefault();
-				const spinner = document.getElementById("spinner");
-				const resultBox = document.getElementById("resultZS");
-				const formData = new FormData(this);
-				const selectedOption = document.getElementById("age-option").value;
-				const weight = document.getElementById("weight").value;
-				const height = document.getElementById("height").value;
+			event.preventDefault();
+			const spinner = document.getElementById("spinner");
+			const resultBox = document.getElementById("resultZS");
+			const formData = new FormData(this);
+			const selectedOption = document.getElementById("age-option").value;
+			const weight = document.getElementById("weight").value;
+			const height = document.getElementById("height").value;
 
-				let isValid = true;
+			let isValid = true;
 
-				const ageInDays = calculateAgeInDaysFromOption(selectedOption);
-				const isAbove5Years = ageInDays > 1856; // Điều kiện để kiểm tra nếu trẻ > 5 tuổi
+			const ageInDays = calculateAgeInDaysFromOption(selectedOption);
+			const isAbove5Years = ageInDays > 1856; // Điều kiện để kiểm tra nếu trẻ > 5 tuổi
 
-				// Ẩn resultBox và hiển thị spinner
-				resultBox.style.display = "none";
-				spinner.style.display = "block";
+			// Ẩn resultBox và hiển thị spinner
+			resultBox.style.display = "none";
+			spinner.style.display = "block";
 
-				// Đặt lại các lỗi hiển thị
-				const fieldsToValidate = [
-					{field: "gender",errorId: "gender-error",groupClass: "gender-group",},
-					{field: "height",errorId: "height-error",groupClass: "height-group",},
-					{field: "weight",errorId: "weight-error",groupClass: "weight-group",},
-				];
+			// Đặt lại các lỗi hiển thị
+			const fieldsToValidate = [
+				{field: "gender",errorId: "gender-error",groupClass: "gender-group",},
+				{field: "height",errorId: "height-error",groupClass: "height-group",},
+				{field: "weight",errorId: "weight-error",groupClass: "weight-group",},
+			];
 
-				// Kiểm tra thông tin đầu vào
-				fieldsToValidate.forEach(({ field, errorId, groupClass }) => {
-					const value = document.getElementById(field).value;
-					const errorElement = document.getElementById(errorId);
-					const groupElement = document.querySelector(`.${groupClass}`);
+			// Kiểm tra thông tin đầu vào
+			fieldsToValidate.forEach(({ field, errorId, groupClass }) => {
+				const value = document.getElementById(field).value;
+				const errorElement = document.getElementById(errorId);
+				const groupElement = document.querySelector(`.${groupClass}`);
 
-					if (!value) {
-						isValid = false;
-						errorElement.style.display = "block";
-						groupElement?.classList.add("error-border");
+				if (!value) {
+					isValid = false;
+					errorElement.style.display = "block";
+					groupElement?.classList.add("error-border");
+				} else {
+					errorElement.style.display = "none";
+					groupElement?.classList.remove("error-border");
+				}
+
+				// Kiểm tra giới hạn chiều cao
+				if (field === "height" && value) {
+					const heightValue = parseFloat(value);
+
+					if (isAbove5Years) {
+						// Với trẻ > 5 tuổi chỉ cần chiều cao tối thiểu 45 cm
+						if (heightValue < 45) {
+							isValid = false;
+							errorElement.style.display = "block";
+							errorElement.textContent = "Please enter a height of at least 45 cm."; // Thông báo lỗi cho trẻ > 5 tuổi
+							groupElement?.classList.add("error-border");
+						} else {
+							errorElement.style.display = "none";
+							groupElement?.classList.remove("error-border");
+						}
 					} else {
+						// Với trẻ < 5 tuổi, chiều cao phải nằm trong khoảng 45-120 cm
+						if (heightValue < 45 || heightValue > 120) {
+							isValid = false;
+							errorElement.style.display = "block";
+							errorElement.textContent = "Please enter a height between 45 and 120 cm."; // Thông báo lỗi cho trẻ < 5 tuổi
+							groupElement?.classList.add("error-border");
+						} else {
+							errorElement.style.display = "none";
+							groupElement?.classList.remove("error-border");
+						}
+					}
+				}
+			});
+
+			// Xử lý loại bỏ lỗi ngay khi nhập liệu
+			fieldsToValidate.forEach(({ field, errorId, groupClass }) => {
+				const inputField = document.getElementById(field);
+				const errorElement = document.getElementById(errorId);
+				const groupElement = document.querySelector(`.${groupClass}`);
+
+				inputField.addEventListener("input", () => {
+					if (inputField.value.trim() !== "") {
 						errorElement.style.display = "none";
 						groupElement?.classList.remove("error-border");
+					} else {
+						errorElement.style.display = "block";
+						groupElement?.classList.add("error-border");
 					}
 
-					// Kiểm tra giới hạn chiều cao
-					if (field === "height" && value) {
-						const heightValue = parseFloat(value);
+					// Loại bỏ lỗi khi nhập liệu cho chiều cao
+					if (field === "height") {
+						const heightValue = parseFloat(inputField.value);
+						const isAbove5Years = ageInYears > 5;
 
 						if (isAbove5Years) {
 							// Với trẻ > 5 tuổi chỉ cần chiều cao tối thiểu 45 cm
-							if (heightValue < 45) {
-								isValid = false;
-								errorElement.style.display = "block";
-								errorElement.textContent = "Please enter a height of at least 45 cm."; // Thông báo lỗi cho trẻ > 5 tuổi
-								groupElement?.classList.add("error-border");
-							} else {
+							if (heightValue >= 45) {
 								errorElement.style.display = "none";
 								groupElement?.classList.remove("error-border");
+							} else {
+								errorElement.style.display = "block";
+								errorElement.textContent = "Please enter a height of at least 45 cm."; // Thông báo lỗi
+								groupElement?.classList.add("error-border");
 							}
 						} else {
 							// Với trẻ < 5 tuổi, chiều cao phải nằm trong khoảng 45-120 cm
-							if (heightValue < 45 || heightValue > 120) {
-								isValid = false;
-								errorElement.style.display = "block";
-								errorElement.textContent = "Please enter a height between 45 and 120 cm."; // Thông báo lỗi cho trẻ < 5 tuổi
-								groupElement?.classList.add("error-border");
-							} else {
+							if (heightValue >= 45 && heightValue <= 120) {
 								errorElement.style.display = "none";
 								groupElement?.classList.remove("error-border");
-							}
-						}
-					}
-				});
-
-				// Xử lý loại bỏ lỗi ngay khi nhập liệu
-				fieldsToValidate.forEach(({ field, errorId, groupClass }) => {
-					const inputField = document.getElementById(field);
-					const errorElement = document.getElementById(errorId);
-					const groupElement = document.querySelector(`.${groupClass}`);
-
-					inputField.addEventListener("input", () => {
-						if (inputField.value.trim() !== "") {
-							errorElement.style.display = "none";
-							groupElement?.classList.remove("error-border");
-						} else {
-							errorElement.style.display = "block";
-							groupElement?.classList.add("error-border");
-						}
-
-						// Loại bỏ lỗi khi nhập liệu cho chiều cao
-						if (field === "height") {
-							const heightValue = parseFloat(inputField.value);
-							const isAbove5Years = ageInYears > 5;
-
-							if (isAbove5Years) {
-								// Với trẻ > 5 tuổi chỉ cần chiều cao tối thiểu 45 cm
-								if (heightValue >= 45) {
-									errorElement.style.display = "none";
-									groupElement?.classList.remove("error-border");
-								} else {
-									errorElement.style.display = "block";
-									errorElement.textContent = "Please enter a height of at least 45 cm."; // Thông báo lỗi
-									groupElement?.classList.add("error-border");
-								}
 							} else {
-								// Với trẻ < 5 tuổi, chiều cao phải nằm trong khoảng 45-120 cm
-								if (heightValue >= 45 && heightValue <= 120) {
-									errorElement.style.display = "none";
-									groupElement?.classList.remove("error-border");
-								} else {
-									errorElement.style.display = "block";
-									errorElement.textContent = "Please enter a height between 45 and 120 cm."; // Thông báo lỗi
-									groupElement?.classList.add("error-border");
-								}
+								errorElement.style.display = "block";
+								errorElement.textContent = "Please enter a height between 45 and 120 cm."; // Thông báo lỗi
+								groupElement?.classList.add("error-border");
 							}
+						}
+					}
+				});
+			});
+
+			// Xử lý loại bỏ lỗi khi chọn ngày sinh (DOB)
+			if (selectedOption === "dob") {
+				const dob = document.getElementById("dob");
+				const currentDay = document.getElementById("current-day");
+				const dobErrorElement = document.getElementById("dob-error");
+				const dobGroupElement = document.querySelector(".input-row");
+
+				// Kiểm tra ngay khi người dùng nhập hoặc chọn DOB
+				[dob, currentDay].forEach((field) => {
+					field.addEventListener("change", () => {
+						if (dob.value && currentDay.value) {
+							dobErrorElement.style.display = "none";
+							dobGroupElement?.classList.remove("error-border");
 						}
 					});
 				});
 
-				// Xử lý loại bỏ lỗi khi chọn ngày sinh (DOB)
-				if (selectedOption === "dob") {
-					const dob = document.getElementById("dob");
-					const currentDay = document.getElementById("current-day");
-					const dobErrorElement = document.getElementById("dob-error");
-					const dobGroupElement = document.querySelector(".input-row");
-
-					// Kiểm tra ngay khi người dùng nhập hoặc chọn DOB
-					[dob, currentDay].forEach((field) => {
-						field.addEventListener("change", () => {
-							if (dob.value && currentDay.value) {
-								dobErrorElement.style.display = "none";
-								dobGroupElement?.classList.remove("error-border");
-							}
-						});
-					});
-
-					if (!dob.value || !currentDay.value) {
-						isValid = false;
-						dobErrorElement.style.display = "block";
-						dobGroupElement?.classList.add("error-border");
-					} else {
-						dobErrorElement.style.display = "none";
-						dobGroupElement?.classList.remove("error-border");
-					}
+				if (!dob.value || !currentDay.value) {
+					isValid = false;
+					dobErrorElement.style.display = "block";
+					dobGroupElement?.classList.add("error-border");
+				} else {
+					dobErrorElement.style.display = "none";
+					dobGroupElement?.classList.remove("error-border");
 				}
+			}
 
-				// Kiểm tra tuổi theo tùy chọn "months" và "days"
-				if (selectedOption === "months") {
-					const ageMonths = parseInt(document.getElementById("age-months").value,10,);
-					const ageMonthsErrorElement = document.getElementById("age-months-error");
-					const ageMonthsGroupElement = document.querySelector(".age-months-group");
+			// Kiểm tra tuổi theo tùy chọn "months" và "days"
+			if (selectedOption === "months") {
+				const ageMonths = parseInt(document.getElementById("age-months").value,10,);
+				const ageMonthsErrorElement = document.getElementById("age-months-error");
+				const ageMonthsGroupElement = document.querySelector(".age-months-group");
 
-					const ageMonthsField = document.getElementById("age-months");
-					ageMonthsField.addEventListener("input", () => {
-						if (!isNaN(ageMonthsField.value) && ageMonthsField.value >= 0) {
-							ageMonthsErrorElement.style.display = "none";
-							ageMonthsGroupElement?.classList.remove("error-border");
-						}
-					});
-
-					if (isNaN(ageMonths) || ageMonths < 0) {
-						isValid = false;
-						ageMonthsErrorElement.style.display = "block";
-						ageMonthsGroupElement?.classList.add("error-border");
-					} else {
+				const ageMonthsField = document.getElementById("age-months");
+				ageMonthsField.addEventListener("input", () => {
+					if (!isNaN(ageMonthsField.value) && ageMonthsField.value >= 0) {
 						ageMonthsErrorElement.style.display = "none";
 						ageMonthsGroupElement?.classList.remove("error-border");
 					}
-				} else if (selectedOption === "days") {
-					const ageDays = parseInt(document.getElementById("age-days").value,10,);
-					const ageDaysErrorElement = document.getElementById("age-days-error");
-					const ageDaysGroupElement = document.querySelector(".age-days-group");
+				});
 
-					const ageDaysField = document.getElementById("age-days");
-					ageDaysField.addEventListener("input", () => {
-						if (!isNaN(ageDaysField.value) && ageDaysField.value >= 0) {
-							ageDaysErrorElement.style.display = "none";
-							ageDaysGroupElement?.classList.remove("error-border");
-						}
-					});
+				if (isNaN(ageMonths) || ageMonths < 0) {
+					isValid = false;
+					ageMonthsErrorElement.style.display = "block";
+					ageMonthsGroupElement?.classList.add("error-border");
+				} else {
+					ageMonthsErrorElement.style.display = "none";
+					ageMonthsGroupElement?.classList.remove("error-border");
+				}
+			} else if (selectedOption === "days") {
+				const ageDays = parseInt(document.getElementById("age-days").value,10,);
+				const ageDaysErrorElement = document.getElementById("age-days-error");
+				const ageDaysGroupElement = document.querySelector(".age-days-group");
 
-					if (isNaN(ageDays) || ageDays < 0) {
-						isValid = false;
-						ageDaysErrorElement.style.display = "block";
-						ageDaysGroupElement?.classList.add("error-border");
-					} else {
+				const ageDaysField = document.getElementById("age-days");
+				ageDaysField.addEventListener("input", () => {
+					if (!isNaN(ageDaysField.value) && ageDaysField.value >= 0) {
 						ageDaysErrorElement.style.display = "none";
 						ageDaysGroupElement?.classList.remove("error-border");
 					}
-				}
+				});
 
-				if (!isValid) {
-					spinner.style.display = "none";
-					return;
+				if (isNaN(ageDays) || ageDays < 0) {
+					isValid = false;
+					ageDaysErrorElement.style.display = "block";
+					ageDaysGroupElement?.classList.add("error-border");
+				} else {
+					ageDaysErrorElement.style.display = "none";
+					ageDaysGroupElement?.classList.remove("error-border");
 				}
+			}
 
-				// Thêm ageInDays vào FormData
-				formData.append("ageInDays", ageInDays);
+			if (!isValid) {
+				spinner.style.display = "none";
+				return;
+			}
+
+			// Thêm ageInDays vào FormData
+			formData.append("ageInDays", ageInDays);
 	            fetch("", { // "" để gọi lại chính tệp PHP hiện tại
 	                method: "POST",
 	                body: formData
@@ -616,9 +616,8 @@
 		        });
 	
 					// Ẩn placeholder
-					document.getElementById("text1").style.display = "none";
-				 	this.submit();
-				});
+			document.getElementById("text1").style.display = "none";
+			});
 	
 			// Gọi observeContentChanges sau khi trang đã tải xong
 			document.addEventListener("DOMContentLoaded", function () {
