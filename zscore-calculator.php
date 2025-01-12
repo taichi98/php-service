@@ -1,4 +1,4 @@
-	<?php
+<?php
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sex = $_POST['sex'] ?? null;
         $dob = $_POST['dob'] ?? null;
@@ -78,7 +78,7 @@
             echo "<p style='color: red;'>Error: Unable to fetch data from the server. Please try again later.</p>";
         }
     }
-  ?>
+?>
 
 <!doctype html>
 <html lang="en">
