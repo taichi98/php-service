@@ -25,12 +25,12 @@
 </div>
 
 <div id="mySidebar" class="sidebar">
-    <a href="?page=cpap">CPAP Calculator</a>
-    <a href="?page=ett">ETT Size</a>
-    <a href="?page=bmi">BMI & BSA Calculator</a>
-    <a href="?page=lightCriteria">Light's Criteria</a>
-    <a href="?page=ibw">Ideal Body Weight</a>
-    <a href="?page=zscore-calculator">WHO Z-Score</a>
+    <a href="?page=cpap" onclick="highlightSelected('item1');">CPAP Calculator</a>
+    <a href="?page=ett" onclick="highlightSelected('item2');">ETT Size</a>
+    <a href="?page=bmi" onclick="highlightSelected('item3');">BMI & BSA Calculator</a>
+    <a href="?page=lightCriteria" onclick="highlightSelected('item4');">Light's Criteria</a>
+    <a href="?page=ibw" onclick="highlightSelected('item5');">Ideal Body Weight</a>
+    <a href="?page=zscore-calculator" onclick="highlightSelected('item6');">WHO Z-Score</a>
 </div>
 
 <div id="myOverlay" class="overlay" onclick="toggleSidebar()"></div>
