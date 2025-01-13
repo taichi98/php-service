@@ -204,39 +204,6 @@ function calculateFlow() {
     document.getElementById("oxyFlow").textContent = "Oxy Flow: " + oxyFlow.toFixed(2) + " L/min";
 }
 
-function loadPage(page) {
-    fetch(page)
-        .then((response) => response.text())
-        .then((data) => {
-            document.getElementById("main").innerHTML = data;
-            // Lưu lại trang hiện tại vào localStorage
-            sessionStorage.setItem("lastPage", page);
-        })
-        .catch((error) => {
-            console.error("Error loading page:", error);
-        });
-}
-// Hàm để tải lại trang cuối cùng khi tải lại trang web
-function loadLastPage() {
-    // Kiểm tra xem trang cuối cùng đã được lưu trong localStorage hay chưa
-    var lastPage = sessionStorage.getItem("lastPage");
-    if (lastPage) {
-        loadPage(lastPage);
-    } else {
-        // Nếu không có, mặc định tải trang cpap.html
-        loadPage("cpap.html");
-    }
-
-    // Kiểm tra xem mục được chọn cuối cùng đã được lưu trong localStorage hay chưa
-    var selectedItem = sessionStorage.getItem("selectedItem");
-    if (selectedItem) {
-        highlightSelected(selectedItem);
-    } else {
-        // Nếu không có, mặc định chọn mục đầu tiên (item1)
-        highlightSelected("item1");
-    }
-}
-
 // script.js
 function highlightSelected(selectedId) {
     // Xóa lớp 'selected' từ tất cả các mục
@@ -257,6 +224,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedItem = sessionStorage.getItem("selectedItem");
     if (selectedItem) {
         highlightSelected(selectedItem);
+    }
+});
+document.addEventListener("DOMContentLoaded", () => {
+    // Lấy đường dẫn hiện tại
+    const currentPath = window.location.pathname;
+    // Tìm mục khớp với URL hiện tại
+    const items = document.querySelectorAll(".sidebar a");
+    let matchedItem = null;
+    items.forEach(item => {
+        if (item.getAttribute("href") === currentPath) {
+            item.classList.add("selected");
+            matchedItem = item;
+        } else {
+            item.classList.remove("selected");
+        }
+    });
+    // Nếu không khớp, xóa trạng thái highlight trong sessionStorage
+    if (!matchedItem) {
+        sessionStorage.removeItem("selectedItem");
+    } else {
+        sessionStorage.setItem("selectedItem", matchedItem.id);
     }
 });
 
