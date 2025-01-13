@@ -8,7 +8,7 @@ $data = array(
     "ageInDays" => 365,       // Tuổi tính theo ngày
     "height" => 75.5,         // Chiều cao (cm)
     "weight" => 8.5,          // Cân nặng (kg)
-    "measure" => "h"          // Loại đo: "h" cho chiều cao, "l" cho chiều dài
+    "measure" => "h"         // Loại đo: "h" cho chiều cao, "l" cho chiều dài
 );
 
 // Chuyển đổi dữ liệu sang định dạng JSON
@@ -48,14 +48,50 @@ if (curl_errno($ch)) {
 
         // Hiển thị biểu đồ BMI nếu có
         if (isset($response_data['charts']['bmi']['zscore']['data'])) {
-            $bmi_chart = htmlspecialchars($response_data['charts']['bmi']['zscore']['data']);
+            $bmi_chart_data = htmlspecialchars($response_data['charts']['bmi']['zscore']['data']);
             echo "<h3>Biểu đồ BMI Z-Score</h3>";
             echo "<div id='bmi-chart' style='width: 100%; height: 400px;'></div>";
             echo "
             <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
             <script>
-                var chartData = $bmi_chart;
+                var chartData = $bmi_chart_data;
                 Plotly.newPlot('bmi-chart', chartData.data, chartData.layout);
+            </script>";
+        }
+
+        // Hiển thị biểu đồ WFA nếu có
+        if (isset($response_data['charts']['wfa']['zscore']['data'])) {
+            $wfa_chart_data = htmlspecialchars($response_data['charts']['wfa']['zscore']['data']);
+            echo "<h3>Biểu đồ WFA Z-Score</h3>";
+            echo "<div id='wfa-chart' style='width: 100%; height: 400px;'></div>";
+            echo "
+            <script>
+                var chartData = $wfa_chart_data;
+                Plotly.newPlot('wfa-chart', chartData.data, chartData.layout);
+            </script>";
+        }
+
+        // Hiển thị biểu đồ LHFA nếu có
+        if (isset($response_data['charts']['lhfa']['zscore']['data'])) {
+            $lhfa_chart_data = htmlspecialchars($response_data['charts']['lhfa']['zscore']['data']);
+            echo "<h3>Biểu đồ LHFA Z-Score</h3>";
+            echo "<div id='lhfa-chart' style='width: 100%; height: 400px;'></div>";
+            echo "
+            <script>
+                var chartData = $lhfa_chart_data;
+                Plotly.newPlot('lhfa-chart', chartData.data, chartData.layout);
+            </script>";
+        }
+
+        // Hiển thị biểu đồ WFLH nếu có
+        if (isset($response_data['charts']['wflh']['zscore']['data'])) {
+            $wflh_chart_data = htmlspecialchars($response_data['charts']['wflh']['zscore']['data']);
+            echo "<h3>Biểu đồ WFLH Z-Score</h3>";
+            echo "<div id='wflh-chart' style='width: 100%; height: 400px;'></div>";
+            echo "
+            <script>
+                var chartData = $wflh_chart_data;
+                Plotly.newPlot('wflh-chart', chartData.data, chartData.layout);
             </script>";
         }
     }
