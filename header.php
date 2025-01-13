@@ -4,29 +4,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
     <title><?php echo $pageTitle ?? 'ICU Tools'; ?></title>
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/style/style.css" />
     <?php
     // Thêm style riêng cho từng trang
     if (isset($page)) {
         switch ($page) {
             case 'ibw':
-                echo '<link rel="stylesheet" href="/ibw.css">';
+                echo '<link rel="stylesheet" href="/style/ibw.css">';
                 break;
             case 'ett':
-                echo '<link rel="stylesheet" href="/ett.css">';
+                echo '<link rel="stylesheet" href="/style/ett.css">';
                 break;
             case 'bmi':
-                echo '<link rel="stylesheet" href="/bmi.css">';
+                echo '<link rel="stylesheet" href="/style/bmi.css">';
                 break;
             case 'zscore-calculator':
-                echo '<link rel="stylesheet" href="/zscore-calculator.css">';
+                echo '<link rel="stylesheet" href="/style/zscore-calculator.css">';
                 echo '<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>';
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>';
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>';
                 echo '<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>';
                 break;
             case 'lightCriteria':
-                echo '<link rel="stylesheet" href="/lightCriteria.css">';
+                echo '<link rel="stylesheet" href="/style/lightCriteria.css">';
                 break;
         }
     }
