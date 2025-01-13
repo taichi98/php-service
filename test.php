@@ -47,32 +47,32 @@ if (isset($response_data['error'])) {
     exit;
 }
 
-// Xử lý kết quả biểu đồ
-$bmi_chart_data = $response_data[0] ?? null; // Biểu đồ JSON
-$bmi_chart_config = $response_data[1] ?? null; // Cấu hình biểu đồ
+// Lấy dữ liệu biểu đồ từ JSON phản hồi
+$bmi_chart_data = json_encode($response_data['data']['data']);
+$bmi_chart_layout = json_encode($response_data['data']['layout']);
+$bmi_chart_config = json_encode($response_data['config']);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biểu đồ BMI Z-Score</title>
+    <title>Test Biểu đồ BMI Z-Score</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <h1>Kết quả Z-Score</h1>
+    <h3>Kết quả Z-Score</h3>
     <pre><?php print_r($response_data); ?></pre>
 
-    <?php if ($bmi_chart_data): ?>
-        <h2>Biểu đồ BMI Z-Score</h2>
-        <div id="bmi-chart" style="width: 100%; height: 500px;"></div>
-        <script>
-            var chartData = <?php echo $bmi_chart_data; ?>;
-            var config = <?php echo $bmi_chart_config; ?>;
-            Plotly.newPlot('bmi-chart', chartData.data, chartData.layout, config);
-        </script>
-    <?php else: ?>
-        <p>Không có dữ liệu biểu đồ BMI.</p>
-    <?php endif; ?>
+    <h2>Biểu đồ BMI Z-Score</h2>
+    <div id="bmi-chart" style="width: 100%; height: 500px;"></div>
+
+    <script>
+        // Hiển thị biểu đồ sử dụng Plotly
+        var chartData = <?php echo $bmi_chart_data; ?>;
+        var chartLayout = <?php echo $bmi_chart_layout; ?>;
+        var chartConfig = <?php echo $bmi_chart_config; ?>;
+        Plotly.newPlot('bmi-chart', chartData, chartLayout, chartConfig);
+    </script>
 </body>
 </html>
