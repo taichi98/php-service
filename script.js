@@ -204,50 +204,6 @@ function calculateFlow() {
     document.getElementById("oxyFlow").textContent = "Oxy Flow: " + oxyFlow.toFixed(2) + " L/min";
 }
 
-// script.js
-function highlightSelected(selectedId) {
-    // Xóa lớp 'selected' từ tất cả các mục
-    const items = document.querySelectorAll(".sidebar a");
-    items.forEach(item => {
-        item.classList.remove("selected");
-    });
-    // Thêm lớp 'selected' vào mục được chọn
-    const selectedItem = document.getElementById(selectedId);
-    selectedItem.classList.add("selected");
-
-    // Lưu trạng thái vào sessionStorage để duy trì khi tải lại trang
-    sessionStorage.setItem("selectedItem", selectedId);
-}
-
-// Khi tải lại trang, kiểm tra trạng thái được lưu và áp dụng
-document.addEventListener("DOMContentLoaded", () => {
-    const selectedItem = sessionStorage.getItem("selectedItem");
-    if (selectedItem) {
-        highlightSelected(selectedItem);
-    }
-});
-document.addEventListener("DOMContentLoaded", () => {
-    // Lấy đường dẫn hiện tại
-    const currentPath = window.location.pathname;
-    // Tìm mục khớp với URL hiện tại
-    const items = document.querySelectorAll(".sidebar a");
-    let matchedItem = null;
-    items.forEach(item => {
-        if (item.getAttribute("href") === currentPath) {
-            item.classList.add("selected");
-            matchedItem = item;
-        } else {
-            item.classList.remove("selected");
-        }
-    });
-    // Nếu không khớp, xóa trạng thái highlight trong sessionStorage
-    if (!matchedItem) {
-        sessionStorage.removeItem("selectedItem");
-    } else {
-        sessionStorage.setItem("selectedItem", matchedItem.id);
-    }
-});
-
 function calculateETT() {
     const age = parseInt(document.getElementById("ageInput").value);
 
