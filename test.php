@@ -1,6 +1,6 @@
 <?php
 // URL của máy chủ Flask
-$api_url = "https://python001.up.railway.app/zscore-calculator";
+$url = "https://python001.up.railway.app/zscore-calculator";
 // Dữ liệu gửi đi
 $data = [
     "sex" => "male", // "male" hoặc "female"
