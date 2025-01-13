@@ -1,6 +1,7 @@
 <?php
-// URL của máy chủ Flask
+// URL của máy chủ Flask (thay thế bằng địa chỉ và cổng của bạn)
 $url = "https://python001.up.railway.app/zscore-calculator";
+
 // Dữ liệu gửi đi
 $data = [
     "sex" => "male", // "male" hoặc "female"
@@ -23,7 +24,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 $response = curl_exec($ch);
 curl_close($ch);
 
-// Kiểm tra lỗi
+// Kiểm tra lỗi phản hồi
 if (!$response) {
     die("Không thể kết nối với Flask server.");
 }
@@ -31,48 +32,64 @@ if (!$response) {
 // Chuyển đổi JSON phản hồi từ Flask thành mảng PHP
 $responseData = json_decode($response, true);
 
-// Trích xuất dữ liệu biểu đồ từ phản hồi
-$bmiZScoreChartData = $responseData['charts']['bmi']['zscore']['data'];
-$bmiZScoreChartLayout = $responseData['charts']['bmi']['zscore']['config'];
+// Kiểm tra nếu phản hồi không hợp lệ
+if (json_last_error() !== JSON_ERROR_NONE) {
+    die("Phản hồi từ Flask không phải JSON hợp lệ: " . json_last_error_msg());
+}
 
-$bmiPercentileChartData = $responseData['charts']['bmi']['percentile']['data'];
-$bmiPercentileChartLayout = $responseData['charts']['bmi']['percentile']['config'];
+// Kiểm tra nếu các khóa cần thiết tồn tại trong phản hồi
+if (!isset($responseData['bmi']) || !isset($responseData['charts'])) {
+    die("Phản hồi từ Flask thiếu dữ liệu cần thiết.");
+}
+
+// Lấy dữ liệu BMI và các biểu đồ
+$bmi = $responseData['bmi'];
+$bmiAgeZscore = $responseData['bmi_age']['zscore'] ?? 'Không có dữ liệu';
+$bmiAgePercentile = $responseData['bmi_age']['percentile'] ?? 'Không có dữ liệu';
+
+$bmiZScoreChart = $responseData['charts']['bmi']['zscore'] ?? null;
+$bmiPercentileChart = $responseData['charts']['bmi']['percentile'] ?? null;
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiển thị biểu đồ với PHP và Flask</title>
+    <title>Kết quả Flask</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <h1>Kết quả BMI từ Flask</h1>
     <div>
-        <p><strong>BMI:</strong> <?= $responseData['bmi'] ?></p>
-        <p><strong>Z-Score:</strong> <?= $responseData['bmi_age']['zscore'] ?></p>
-        <p><strong>Percentile:</strong> <?= $responseData['bmi_age']['percentile'] ?>%</p>
+        <p><strong>BMI:</strong> <?= $bmi ?></p>
+        <p><strong>Z-Score:</strong> <?= $bmiAgeZscore ?></p>
+        <p><strong>Percentile:</strong> <?= $bmiAgePercentile ?>%</p>
     </div>
 
-    <h2>Biểu đồ BMI Z-Score</h2>
-    <div id="bmi-zscore-chart" style="width: 600px; height: 400px;"></div>
+    <?php if ($bmiZScoreChart): ?>
+        <h2>Biểu đồ BMI Z-Score</h2>
+        <div id="bmi-zscore-chart" style="width: 600px; height: 400px;"></div>
+    <?php endif; ?>
 
-    <h2>Biểu đồ BMI Percentile</h2>
-    <div id="bmi-percentile-chart" style="width: 600px; height: 400px;"></div>
+    <?php if ($bmiPercentileChart): ?>
+        <h2>Biểu đồ BMI Percentile</h2>
+        <div id="bmi-percentile-chart" style="width: 600px; height: 400px;"></div>
+    <?php endif; ?>
 
     <script>
-        // Dữ liệu biểu đồ từ PHP (nhúng JSON trực tiếp vào JavaScript)
-        const bmiZScoreData = <?= $bmiZScoreChartData ?>;
-        const bmiZScoreLayout = <?= json_encode($bmiZScoreChartLayout) ?>;
+        <?php if ($bmiZScoreChart): ?>
+            const bmiZScoreData = <?= json_encode($bmiZScoreChart['data'] ?? []) ?>;
+            const bmiZScoreLayout = <?= json_encode($bmiZScoreChart['config'] ?? []) ?>;
+            Plotly.newPlot('bmi-zscore-chart', bmiZScoreData.data, bmiZScoreData.layout, bmiZScoreLayout);
+        <?php endif; ?>
 
-        const bmiPercentileData = <?= $bmiPercentileChartData ?>;
-        const bmiPercentileLayout = <?= json_encode($bmiPercentileChartLayout) ?>;
-
-        // Vẽ biểu đồ Z-Score
-        Plotly.newPlot('bmi-zscore-chart', JSON.parse(bmiZScoreData).data, JSON.parse(bmiZScoreData).layout, bmiZScoreLayout);
-
-        // Vẽ biểu đồ Percentile
-        Plotly.newPlot('bmi-percentile-chart', JSON.parse(bmiPercentileData).data, JSON.parse(bmiPercentileData).layout, bmiPercentileLayout);
+        <?php if ($bmiPercentileChart): ?>
+            const bmiPercentileData = <?= json_encode($bmiPercentileChart['data'] ?? []) ?>;
+            const bmiPercentileLayout = <?= json_encode($bmiPercentileChart['config'] ?? []) ?>;
+            Plotly.newPlot('bmi-percentile-chart', bmiPercentileData.data, bmiPercentileData.layout, bmiPercentileLayout);
+        <?php endif; ?>
     </script>
 </body>
 </html>
