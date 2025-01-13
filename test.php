@@ -36,7 +36,9 @@ if (curl_errno($ch)) {
     curl_close($ch);
     exit;
 }
-
+// Hiển thị dữ liệu JSON trả về
+header('Content-Type: application/json');
+echo $response;
 // Giải mã JSON phản hồi từ máy chủ
 $response_data = json_decode($response, true);
 curl_close($ch);
