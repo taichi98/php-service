@@ -237,20 +237,28 @@ function loadLastPage() {
     }
 }
 
+// script.js
 function highlightSelected(selectedId) {
-    // Xóa lớp "selected" từ các mục khác
-    var items = document.querySelectorAll(".sidebar a");
-    items.forEach(function (item) {
+    // Xóa lớp 'selected' từ tất cả các mục
+    const items = document.querySelectorAll(".sidebar a");
+    items.forEach(item => {
         item.classList.remove("selected");
     });
-
-    // Thêm lớp "selected" cho mục đang được chọn
-    var selectedItem = document.getElementById(selectedId);
+    // Thêm lớp 'selected' vào mục được chọn
+    const selectedItem = document.getElementById(selectedId);
     selectedItem.classList.add("selected");
 
-    // Lưu lại mục được chọn vào localStorage
+    // Lưu trạng thái vào sessionStorage để duy trì khi tải lại trang
     sessionStorage.setItem("selectedItem", selectedId);
 }
+
+// Khi tải lại trang, kiểm tra trạng thái được lưu và áp dụng
+document.addEventListener("DOMContentLoaded", () => {
+    const selectedItem = sessionStorage.getItem("selectedItem");
+    if (selectedItem) {
+        highlightSelected(selectedItem);
+    }
+});
 
 function calculateETT() {
     const age = parseInt(document.getElementById("ageInput").value);
