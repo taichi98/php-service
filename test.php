@@ -47,32 +47,98 @@ if (isset($response_data['error'])) {
     exit;
 }
 
-// Lấy dữ liệu biểu đồ từ JSON phản hồi
-$bmi_chart_data = json_encode($response_data['data']['data']);
-$bmi_chart_layout = json_encode($response_data['data']['layout']);
-$bmi_chart_config = json_encode($response_data['config']);
+// Gửi dữ liệu biểu đồ ra phía client
+$data_charts = json_encode($response_data['charts']);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Biểu đồ BMI Z-Score</title>
+    <title>Biểu đồ Z-Score</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h3>Kết quả Z-Score</h3>
-    <pre><?php print_r($response_data); ?></pre>
-
-    <h2>Biểu đồ BMI Z-Score</h2>
-    <div id="bmi-chart" style="width: 100%; height: 500px;"></div>
+    <h1>Kết quả Z-Score</h1>
+    <div>
+        <label for="chart-type-selector">Loại biểu đồ:</label>
+        <select id="chart-type-selector" onchange="updateChartsBasedOnSelection()">
+            <option value="zscore">Z-Score</option>
+            <option value="percentile">Percentile</option>
+        </select>
+    </div>
+    
+    <div id="bmi-chart" class="chart-container"></div>
+    <div id="wfa-chart" class="chart-container"></div>
+    <div id="lhfa-chart" class="chart-container"></div>
+    <div id="wflh-chart" class="chart-container"></div>
 
     <script>
-        // Hiển thị biểu đồ sử dụng Plotly
-        var chartData = <?php echo $bmi_chart_data; ?>;
-        var chartLayout = <?php echo $bmi_chart_layout; ?>;
-        var chartConfig = <?php echo $bmi_chart_config; ?>;
-        Plotly.newPlot('bmi-chart', chartData, chartLayout, chartConfig);
+        const data = {
+            charts: <?php echo $data_charts; ?>
+        };
+
+        function updateChartsBasedOnSelection() {
+            const selectedType = document.getElementById("chart-type-selector").value;
+
+            const chartMappings = [
+                { key: "bmi", id: "bmi-chart" },
+                { key: "wfa", id: "wfa-chart" },
+                { key: "lhfa", id: "lhfa-chart" },
+                { key: "wflh", id: "wflh-chart" },
+            ];
+
+            const aspectRatio = 4 / 3;
+
+            chartMappings.forEach((chart) => {
+                const chartContainer = document.getElementById(chart.id);
+
+                if (data.charts[chart.key] && chartContainer) {
+                    const chartData = data.charts[chart.key][selectedType];
+                    if (chartData && chartData.data) {
+                        try {
+                            Plotly.purge(chart.id);
+
+                            const parsedData = JSON.parse(chartData.data);
+
+                            const chartWidth = chartContainer.offsetWidth;
+                            const chartHeight = chartWidth / aspectRatio;
+
+                            // Gán dữ liệu vào container để dùng khi resize
+                            chartContainer.data = parsedData.data;
+                            chartContainer.layout = {
+                                ...parsedData.layout,
+                                autosize: true,
+                                height: chartHeight,
+                                margin: { l: 10, r: 10, t: 10, b: 10 },
+                                font: {
+                                    ...parsedData.layout.font,
+                                    size: Math.max(8, chartWidth * 0.02),
+                                },
+                            };
+
+                            const config = { ...chartData.config, responsive: true };
+
+                            Plotly.newPlot(chart.id, chartContainer.data, chartContainer.layout, config);
+                        } catch (error) {
+                            console.error(`Lỗi khi cập nhật biểu đồ ${chart.key}:`, error);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Hiển thị mặc định Z-Score khi tải trang
+        document.addEventListener("DOMContentLoaded", () => {
+            updateChartsBasedOnSelection();
+        });
     </script>
 </body>
 </html>
