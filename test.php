@@ -48,7 +48,7 @@ if (isset($response_data['error'])) {
 }
 
 // Gửi dữ liệu biểu đồ ra phía client
-$data_charts = json_encode($response_data['charts']);
+$data_charts = json_encode($response_data['data']);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
