@@ -25,12 +25,12 @@
 </div>
 
 <div id="mySidebar" class="sidebar">
-    <a href="?page=cpap" onclick="highlightSelected('item1');">CPAP Calculator</a>
-    <a href="?page=ett" onclick="highlightSelected('item2');">ETT Size</a>
-    <a href="?page=bmi" onclick="highlightSelected('item3');">BMI & BSA Calculator</a>
-    <a href="?page=lightCriteria" onclick="highlightSelected('item4');">Light's Criteria</a>
-    <a href="?page=ibw" onclick="highlightSelected('item5');">Ideal Body Weight</a>
-    <a href="?page=zscore-calculator" onclick="highlightSelected('item6');">WHO Z-Score</a>
+    <a id="item1" href="?page=cpap" onclick="highlightSelected('item1');">CPAP Calculator</a>
+    <a id="item2" href="?page=ett" onclick="highlightSelected('item2');">ETT Size</a>
+    <a id="item3" href="?page=bmi" onclick="highlightSelected('item3');">BMI & BSA Calculator</a>
+    <a id="item4" href="?page=lightCriteria" onclick="highlightSelected('item4');">Light's Criteria</a>
+    <a id="item5" href="?page=ibw" onclick="highlightSelected('item5');">Ideal Body Weight</a>
+    <a id="item6" href="?page=zscore-calculator" onclick="highlightSelected('item6');">WHO Z-Score</a>
 </div>
 
 <div id="myOverlay" class="overlay" onclick="toggleSidebar()"></div>
