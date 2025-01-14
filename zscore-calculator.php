@@ -1,35 +1,53 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $url = 'https://python001.up.railway.app/zscore-calculator';
-    $data = [
-        'sex' => $_POST['sex'],
-        'ageInDays' => $_POST['ageInDays'],
-        'height' => $_POST['height'],
-        'weight' => $_POST['weight'],
-        'measure' => $_POST['measure']
-    ];
+    // URL của máy chủ Python
+    $url = "https://python001.up.railway.app/zscore-calculator";
 
-    $options = [
-        'http' => [
-            'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
-            'method' => 'POST',
-            'content' => http_build_query($data)
-        ]
-    ];
+    // Dữ liệu gửi lên máy chủ Python
+    $data = array(
+        "sex" => $_POST['sex'],
+        "ageInDays" => $_POST['ageInDays'],
+        "height" => $_POST['height'],
+        "weight" => $_POST['weight'],
+        "measure" => $_POST['measure']
+    );
 
-    $context = stream_context_create($options);
-    $response = @file_get_contents($url, false, $context);
-    if ($response === FALSE) {
-        $error = error_get_last();
-        echo "Error occurred: " . $error['message'];
-        die();
+    // Chuyển đổi dữ liệu sang JSON
+    $data_json = json_encode($data);
+
+    // Khởi tạo cURL
+    $ch = curl_init();
+
+    // Cấu hình cURL
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Nhận phản hồi từ server
+    curl_setopt($ch, CURLOPT_POST, true);           // Thiết lập phương thức POST
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(     // Thiết lập header
+        "Content-Type: application/json",
+        "Content-Length: " . strlen($data_json)
+    ));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json); // Gửi dữ liệu JSON
+
+    // Gửi yêu cầu cURL và nhận phản hồi
+    $response = curl_exec($ch);
+
+    // Kiểm tra lỗi
+    if (curl_errno($ch)) {
+        echo "cURL Error: " . curl_error($ch);
+    } else {
+        // Kiểm tra mã trạng thái HTTP
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_code === 200) {
+            // Phản hồi thành công
+            $result = json_decode($response, true); // Giải mã JSON
+        } else {
+            // Lỗi từ phía máy chủ
+            echo "HTTP Error: " . $http_code . "<br>";
+            echo "Response: " . $response;
+        }
     }
-
-    if ($response === FALSE) {
-        die('Error occurred while fetching data.');
-    }
-
-    $result = json_decode($response, true);
+    // Đóng cURL
+    curl_close($ch);
 }
 ?>
 
