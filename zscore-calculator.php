@@ -103,28 +103,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <script>
             const selectedType = 'zscore'; // Có thể thay đổi thành 'percentile' nếu cần
             const chartMappings = [
-                { key: 'bmi', id: 'bmi-chart' },
-                { key: 'wfa', id: 'wfa-chart' },
-                { key: 'lhfa', id: 'lhfa-chart' },
-                { key: 'wflh', id: 'wflh-chart' },
+                { key: "bmi", id: "bmi-chart" },
+                { key: "wfa", id: "wfa-chart" },
+                { key: "lhfa", id: "lhfa-chart" },
+                { key: "wflh", id: "wflh-chart" },
             ];
-
+        
             const aspectRatio = 4 / 3;
-
+        
             chartMappings.forEach((chart) => {
                 const chartContainer = document.getElementById(chart.id);
-
-                if (resultData.charts[chart.key] && chartContainer) {
-                    const chartData = resultData.charts[chart.key][selectedType];
+        
+                if (data.charts[chart.key] && chartContainer) {
+                    const chartData = data.charts[chart.key][selectedType];
                     if (chartData && chartData.data) {
                         try {
                             Plotly.purge(chart.id);
-
+        
                             const parsedData = JSON.parse(chartData.data);
-
                             const chartWidth = chartContainer.offsetWidth;
                             const chartHeight = chartWidth / aspectRatio;
-
+        
+                            // Gán dữ liệu vào container để dùng khi resize
                             chartContainer.data = parsedData.data;
                             chartContainer.layout = {
                                 ...parsedData.layout,
@@ -136,9 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     size: Math.max(8, chartWidth * 0.02),
                                 },
                             };
-
                             const config = { ...chartData.config, responsive: true };
-
                             Plotly.newPlot(chart.id, chartContainer.data, chartContainer.layout, config);
                         } catch (error) {
                             console.error(`Lỗi khi cập nhật biểu đồ ${chart.key}:`, error);
