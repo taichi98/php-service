@@ -18,7 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     $context = stream_context_create($options);
-    $response = file_get_contents($url, false, $context);
+    $response = @file_get_contents($url, false, $context);
+    if ($response === FALSE) {
+        $error = error_get_last();
+        echo "Error occurred: " . $error['message'];
+        die();
+    }
 
     if ($response === FALSE) {
         die('Error occurred while fetching data.');
