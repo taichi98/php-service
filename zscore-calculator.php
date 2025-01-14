@@ -93,40 +93,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
 
-        <?php if (!empty($result)) : ?>
+       <?php if (!empty($result)) : ?>
         <div id="result-container">
             <div id="bmi-chart" class="plot-container"></div>
             <div id="wfa-chart" class="plot-container"></div>
             <div id="lhfa-chart" class="plot-container"></div>
             <div id="wflh-chart" class="plot-container"></div>
         </div>
-<script>
-    // Parse data from PHP
-    const resultData = <?php echo json_encode($result); ?>;
+        <script>
+            const selectedType = 'zscore'; // Có thể thay đổi thành 'percentile' nếu cần
+            const chartMappings = [
+                { key: 'bmi', id: 'bmi-chart' },
+                { key: 'wfa', id: 'wfa-chart' },
+                { key: 'lhfa', id: 'lhfa-chart' },
+                { key: 'wflh', id: 'wflh-chart' },
+            ];
 
-    function renderChart(chartId, chartKey) {
-        try {
-            const chartData = JSON.parse(resultData.charts[chartKey].zscore.data);
-            const chartLayout = JSON.parse(resultData.charts[chartKey].zscore.layout);
-            const chartConfig = JSON.parse(resultData.charts[chartKey].zscore.config);
+            const aspectRatio = 4 / 3;
 
-            Plotly.newPlot(chartId, chartData.data, chartLayout, chartConfig);
-        } catch (error) {
-            console.error(`Error rendering chart for ${chartKey}:`, error);
-        }
-    }
+            chartMappings.forEach((chart) => {
+                const chartContainer = document.getElementById(chart.id);
 
-    // BMI Chart
-    renderChart('bmi-chart', 'bmi');
-    // WFA Chart
-    renderChart('wfa-chart', 'wfa');
-    // LHFA Chart
-    renderChart('lhfa-chart', 'lhfa');
-    // WFLH Chart
-    if (resultData.charts.wflh && resultData.charts.wflh.zscore) {
-        renderChart('wflh-chart', 'wflh');
-    }
-</script>
+                if (resultData.charts[chart.key] && chartContainer) {
+                    const chartData = resultData.charts[chart.key][selectedType];
+                    if (chartData && chartData.data) {
+                        try {
+                            Plotly.purge(chart.id);
+
+                            const parsedData = JSON.parse(chartData.data);
+
+                            const chartWidth = chartContainer.offsetWidth;
+                            const chartHeight = chartWidth / aspectRatio;
+
+                            chartContainer.data = parsedData.data;
+                            chartContainer.layout = {
+                                ...parsedData.layout,
+                                autosize: true,
+                                height: chartHeight,
+                                margin: { l: 10, r: 10, t: 10, b: 10 },
+                                font: {
+                                    ...parsedData.layout.font,
+                                    size: Math.max(8, chartWidth * 0.02),
+                                },
+                            };
+
+                            const config = { ...chartData.config, responsive: true };
+
+                            Plotly.newPlot(chart.id, chartContainer.data, chartContainer.layout, config);
+                        } catch (error) {
+                            console.error(`Lỗi khi cập nhật biểu đồ ${chart.key}:`, error);
+                        }
+                    }
+                }
+            });
+        </script>
         <?php endif; ?>
     </div>
 </body>
