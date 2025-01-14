@@ -100,44 +100,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="lhfa-chart" class="plot-container"></div>
             <div id="wflh-chart" class="plot-container"></div>
         </div>
-        <script>
-            // Parse data from PHP
-            const resultData = <?php echo json_encode($result); ?>;
+<script>
+    // Parse data from PHP
+    const resultData = <?php echo json_encode($result); ?>;
 
-            // BMI Chart
-            Plotly.newPlot(
-                'bmi-chart',
-                JSON.parse(resultData.charts.bmi.zscore.data).data,
-                JSON.parse(resultData.charts.bmi.zscore.data).layout,
-                JSON.parse(resultData.charts.bmi.zscore.config)
-            );
+    function renderChart(chartId, chartKey) {
+        try {
+            const chartData = JSON.parse(resultData.charts[chartKey].zscore.data);
+            const chartLayout = JSON.parse(resultData.charts[chartKey].zscore.layout);
+            const chartConfig = JSON.parse(resultData.charts[chartKey].zscore.config);
 
-            // WFA Chart
-            Plotly.newPlot(
-                'wfa-chart',
-                JSON.parse(resultData.charts.wfa.zscore.data).data,
-                JSON.parse(resultData.charts.wfa.zscore.data).layout,
-                JSON.parse(resultData.charts.wfa.zscore.config)
-            );
+            Plotly.newPlot(chartId, chartData.data, chartLayout, chartConfig);
+        } catch (error) {
+            console.error(`Error rendering chart for ${chartKey}:`, error);
+        }
+    }
 
-            // LHFA Chart
-            Plotly.newPlot(
-                'lhfa-chart',
-                JSON.parse(resultData.charts.lhfa.zscore.data).data,
-                JSON.parse(resultData.charts.lhfa.zscore.data).layout,
-                JSON.parse(resultData.charts.lhfa.zscore.config)
-            );
-
-            // WFLH Chart
-            if (resultData.charts.wflh.zscore) {
-                Plotly.newPlot(
-                    'wflh-chart',
-                    JSON.parse(resultData.charts.wflh.zscore.data).data,
-                    JSON.parse(resultData.charts.wflh.zscore.data).layout,
-                    JSON.parse(resultData.charts.wflh.zscore.config)
-                );
-            }
-        </script>
+    // BMI Chart
+    renderChart('bmi-chart', 'bmi');
+    // WFA Chart
+    renderChart('wfa-chart', 'wfa');
+    // LHFA Chart
+    renderChart('lhfa-chart', 'lhfa');
+    // WFLH Chart
+    if (resultData.charts.wflh && resultData.charts.wflh.zscore) {
+        renderChart('wflh-chart', 'wflh');
+    }
+</script>
         <?php endif; ?>
     </div>
 </body>
