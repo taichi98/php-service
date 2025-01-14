@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'ageInDays' => $_POST['ageInDays'],
         'height' => $_POST['height'],
         'weight' => $_POST['weight'],
-        'measured' => $_POST['measured']
+        'measure' => $_POST['measure']
     ];
 
     $options = [
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <label for="measured">Measured:</label>
-                <select name="measured" id="measured" required>
+                <select name="measure" id="measured" required>
                     <option value="h">Standing</option>
                     <option value="l">Recumbent</option>
                 </select>
