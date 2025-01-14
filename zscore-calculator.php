@@ -1,6 +1,6 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $url = 'http://python001.up.railway.app/zscore-calculator';
+    $url = 'https://python001.up.railway.app/zscore-calculator';
     $data = [
         'sex' => $_POST['sex'],
         'ageInDays' => $_POST['ageInDays'],
