@@ -8,9 +8,50 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #000; /* Nền đen */
+            color: #fff; /* Màu chữ mặc định */
             text-align: center;
+        }
+
+        .container {
+            padding: 50px;
+        }
+
+        .title {
+            font-size: 40px;
+            color: #f39c12; /* Màu vàng cam */
+            margin-bottom: 20px;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .countdown div {
+            text-align: center;
+        }
+
+        .countdown div span {
+            display: block;
+            font-size: 18px;
+            margin-top: 10px;
+            color: #f39c12; /* Màu vàng cam */
+        }
+
+        .countdown div div {
+            color: #f39c12; /* Màu vàng cam cho số */
+        }
+
+        .description {
+            font-size: 18px;
+            line-height: 1.5;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #fff; /* Màu trắng cho đoạn mô tả */
         }
 
         .container {
