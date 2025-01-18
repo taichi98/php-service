@@ -29,7 +29,6 @@ $result = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Xóa mọi output trước đó
     ob_end_clean();
-
     // Đảm bảo chỉ trả về JSON
     header('Content-Type: application/json'); // Đặt header JSON
 
@@ -48,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,10 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 applicable regardless of geographical or socio-economic factors.
             </p>
             <p>
-                This web site presents the WHO Child Growth Standards. These standards
-                were developed using data collected in the WHO Multicentre Growth
-                Reference Study. The site presents documentation on how the physical
-                growth curves and motor milestone windows of achievement were
+                This web site presents the WHO Child Growth Standards. These standards were developed using data collected in the WHO Multicentre Growth
+                Reference Study. The site presents documentation on how the physical growth curves and motor milestone windows of achievement were
                 developed as well as application tools to support the implementation
                 of the standards
             </p>
@@ -77,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container_of_content">
             <div class="result-box-zscore">
                 <div class="collapsible-header" onclick="toggleCollapse('collapsible-content', 'arrow-icon')">
-                    <img src="https://cdn.glitch.global/94270b80-ba22-42cb-bb07-4670a8f8179e/down.png?v=1737180383881" alt="Arrow Icon" class="arrow-icon" id="arrow-icon"/>
+                    <img src="data/down.png" alt="Arrow Icon" class="arrow-icon" id="arrow-icon"/>
                     <h2 class="compact-title">Growth Chart Results (WHO Standards)</h2>
                 </div>
                 <div id="no-data-message" class="no-data" style="display: block">No data available</div>
@@ -651,13 +647,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </script>
   
-    //Modal báo lỗi khi nhập quá 19 tuổi
-		<div id="custom-alert" class="modal">
-			<div class="modal-content">
-				<a onclick="closeAlert()" class="link-2"></a>
-				<span class="modal-title">MedixTools</span>
-				<p id="alert-message"></p>
-			</div>
+	<div id="custom-alert" class="modal">
+		<div class="modal-content">
+			<a onclick="closeAlert()" class="link-2"></a>
+			<span class="modal-title">MedixTools</span>
+			<p id="alert-message"></p>
 		</div>
+	</div>
 </body>
 </html>
