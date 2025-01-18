@@ -44,7 +44,6 @@ try {
                 throw new Exception("File not found");
             }
             break;
-    switch ($page) {
         case 'cpap':
             if (file_exists('cpap.php')) {
                 include 'cpap.php';
