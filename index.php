@@ -1,12 +1,9 @@
 <?php
 // Lấy đường dẫn trang từ URL
-$page = $_GET['page'] ?? 'countdown';
+$page = $_GET['page'] ?? 'cpap';
 
 // Đặt tiêu đề trang dựa trên lựa chọn
 switch ($page) {
-    case 'countdown':
-        $pageTitle = "Countdown to Lunar New Year";
-        break;
     case 'cpap':
         $pageTitle = "CPAP Calculator";
         break;
@@ -37,13 +34,6 @@ include 'header.php';
 // Kiểm tra và include nội dung tương ứng
 try {
     switch ($page) {
-        case 'countdown':
-            if (file_exists('countdown.php')) {
-                include 'countdown.php';
-            } else {
-                throw new Exception("File not found");
-            }
-            break;
         case 'cpap':
             if (file_exists('cpap.php')) {
                 include 'cpap.php';
