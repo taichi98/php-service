@@ -27,10 +27,11 @@ function sendDataToPython($data)
 // Xử lý form khi người dùng gửi dữ liệu
 $result = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      // Xóa mọi output trước đó
-    ob_end_clean();
-    // Đảm bảo chỉ trả về JSON
-    header('Content-Type: application/json'); // Đặt header JSON
+	// Xóa buffer nếu có
+	if (ob_get_level()) {
+	    ob_end_clean();
+	}
+	header('Content-Type: application/json');
 
     $formData = http_build_query([
         'sex' => $_POST['sex'] ?? '',
