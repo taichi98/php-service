@@ -1,6 +1,9 @@
 <?php
-ob_start();
-ob_end_clean();
+ob_start(); // Bắt đầu buffer
+include 'header.php';
+ob_end_clean(); // Xóa buffer để tránh xuất nội dung từ header.php
+header('Content-Type: application/json');
+
 // Hàm gửi dữ liệu POST tới máy chủ Python
 function sendDataToPython($data)
 {
