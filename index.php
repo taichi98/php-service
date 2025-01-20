@@ -1,7 +1,10 @@
 <?php
 // Lấy đường dẫn trang từ URL
 $page = $_GET['page'] ?? 'cpap';
-
+// Nếu trang là API (ví dụ: `zscore-calculator`), không include `header.php`
+if ($page !== 'zscore-calculator') {
+    include 'header.php'; // Chỉ include header khi không phải API
+}
 // Đặt tiêu đề trang dựa trên lựa chọn
 switch ($page) {
     case 'cpap':
@@ -27,9 +30,6 @@ switch ($page) {
         $page = '404'; // Trang lỗi
         break;
 }
-
-// Chèn header
-include 'header.php';
 
 // Kiểm tra và include nội dung tương ứng
 try {
