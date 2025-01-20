@@ -1,4 +1,6 @@
 <?php
+ob_start();
+ob_end_clean();
 // Hàm gửi dữ liệu POST tới máy chủ Python
 function sendDataToPython($data)
 {
@@ -47,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode($result);
     exit;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
