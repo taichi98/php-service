@@ -25,6 +25,9 @@ switch ($page) {
     case 'lightCriteria':
         $pageTitle = "Light's Criteria";
         break;
+    case 'eer':
+        $pageTitle = "Estimated energy requirement";
+        break;
     default:
         $pageTitle = "Page Not Found";
         $page = '404'; // Trang lỗi
@@ -72,6 +75,13 @@ try {
         case 'lightCriteria':
             if (file_exists('lightCriteria.php')) {
                 include 'lightCriteria.php';
+            } else {
+                throw new Exception("File not found");
+            }
+            break;
+        case 'eer':
+            if (file_exists('eer.php')) {
+                include 'eer.php';
             } else {
                 throw new Exception("File not found");
             }
