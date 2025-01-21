@@ -25,12 +25,13 @@
 </div>
 
 <div id="mySidebar" class="sidebar">
-    <a id="item1" href="?page=cpap" class="<?= ($page === 'cpap') ? 'selected' : '' ?>">CPAP Calculator</a>
-    <a id="item2" href="?page=ett" class="<?= ($page === 'ett') ? 'selected' : '' ?>">ETT Size</a>
-    <a id="item3" href="?page=bmi" class="<?= ($page === 'bmi') ? 'selected' : '' ?>">BMI & BSA Calculator</a>
-    <a id="item4" href="?page=lightCriteria" class="<?= ($page === 'lightCriteria') ? 'selected' : '' ?>">Light's Criteria</a>
-    <a id="item5" href="?page=ibw" class="<?= ($page === 'ibw') ? 'selected' : '' ?>">Ideal Body Weight</a>
-    <a id="item6" href="?page=zscore-calculator" class="<?= ($page === 'zscore-calculator') ? 'selected' : '' ?>">WHO Z-Score</a>
+    <a href="?page=cpap" class="<?= ($page === 'cpap') ? 'selected' : '' ?>">CPAP Calculator</a>
+    <a href="?page=ett" class="<?= ($page === 'ett') ? 'selected' : '' ?>">ETT Size</a>
+    <a href="?page=bmi" class="<?= ($page === 'bmi') ? 'selected' : '' ?>">BMI & BSA Calculator</a>
+    <a href="?page=lightCriteria" class="<?= ($page === 'lightCriteria') ? 'selected' : '' ?>">Light's Criteria</a>
+    <a href="?page=ibw" class="<?= ($page === 'ibw') ? 'selected' : '' ?>">Ideal Body Weight</a>
+    <a href="?page=zscore-calculator" class="<?= ($page === 'zscore-calculator') ? 'selected' : '' ?>">WHO Z-Score</a>
+    <a href="?page=eer" class="<?= ($page === 'eer') ? 'selected' : '' ?>">Estimated energy requirement</a>
 </div>
 
 <div id="myOverlay" class="overlay" onclick="toggleSidebar()"></div>
