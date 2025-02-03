@@ -90,24 +90,24 @@ for the energy cost of growth based on average rates of weight gains and rates o
               <div id="dob-container" class="input-row">
                   <div id="dob-input" class="field_date_input">
                       <label for="dob">Date of Birth:</label>
-                      <input type="date" id="dob" name="dob" placeholder="dd/mm/yyyy" />
+                      <input type="date" id="dob" name="dob" placeholder="dd/mm/yyyy" onchange="togglePAL();" />
                   </div>
                   <div id="current-day-input" class="field_date_input">
                       <label for="current-day">Day of Visit:</label>
-                      <input type="date" id="current-day" name="current-day" placeholder="dd/mm/yyyy"/>
+                      <input type="date" id="current-day" name="current-day" placeholder="dd/mm/yyyy" onchange="togglePAL();" />
                   </div>
               </div>
 
               <!-- Age in Months Input -->
               <div id="months-input" class="age-months-group" style="display: none;">
                   <label for="age-months">Age in Months:</label>
-                  <input type="number" id="age-months" name="age-months" min="0" placeholder="Enter age in months" />
+                  <input type="number" id="age-months" name="age-months" min="0" placeholder="Enter age in months" onchange="togglePAL();" />
               </div>
 
               <!-- Age in Days Input -->
               <div id="days-input" class="age-days-group" style="display: none;">
                   <label for="age-days">Age in Days:</label>
-                  <input type="number" id="age-days" name="age-days" min="0" placeholder="Enter age in days" />
+                  <input type="number" id="age-days" name="age-days" min="0" placeholder="Enter age in days" onchange="togglePAL();" />
               </div>
           </div>
             <div id="age-display" style="margin-bottom: 10px; color: red"></div>
@@ -130,7 +130,7 @@ for the energy cost of growth based on average rates of weight gains and rates o
 
             <!-- Height -->
             <div id="height-select-group" class="height-group">
-                <label for="height">Height (cm):</label>
+                <label for="height">Length/Height (cm):</label>
                 <input type="number"style="width: 100%" id="height" class="height-group" name="height" step="0.1" />
             </div>
             <span id="height-error" style="margin-bottom: 5px; margin-top: -5px; font-size: 12px; color: red; display: none;"
@@ -143,10 +143,39 @@ for the energy cost of growth based on average rates of weight gains and rates o
             </div>
             <span id="weight-error"
                 style="margin-bottom: 5px;margin-top: -5px;font-size: 12px;color: red;display: none;">Please enter the weight</span>
+            
+            <!-- Physical activity level -->
+            <div class="PAL-container" style="display: flex; flex-direction: column; margin-bottom: 10px;">
+                <label for="PAL-option">Physical activity level:</label>
+                <select class="dropbtn" id="PAL-option" name="PAL" onchange="togglePAL()">
+                    <option value="notappli" selected>Not applicable (if patient is under 3 years of age)</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="lowactive">Low active</option>
+                    <option value="active">Active</option>
+                    <option value="veryactive">Very active</option>
+                </select>
+            </div>
+            <input type="hidden" id="PAL-value" name="PAL-value" value="notappli">
 
+            
             <button type="submit">Calculate</button>
           </form>
+          
+          <!-- Phân trả kết quả -->
+          <div id="result" class="result-container">
+              <div style="font-size: 1.17em; font-weight: bold; margin-bottom: 8px; padding-left: 5px;">Result:</div>
+              <div id="spinner" style="display: none; text-align: center">
+                  <img src="data/spinner.gif" style="width: 100px; height: 100px" />
+              </div>
+              <p id="text1" style="<?php echo isset($result) ? 'display: none;' : 'display: block;'; ?>">
+                  Please fill out required fields.
+              </p>                    
+              <div id="resultZS" style="<?php echo isset($result) ? 'display: block;' : 'display: none;'; ?>">
+                  <div class="result-item">
 
+                  </div>
+              </div>
+          </div>
         </div>
     </div>
 </div>
@@ -224,7 +253,314 @@ for the energy cost of growth based on average rates of weight gains and rates o
             return `${day}/${month}/${year}`;
         }
     });
-        //=================================================================================================
+  //=================================================================================================
+    
+    function updateResultField(resultId, resultSideId, boxId, label, dataKey) {
+        const resultElement = document.getElementById(resultId);
+        const resultSideElement = document.getElementById(resultSideId);
+        const boxElement = document.getElementById(boxId);
+        const titleElement = resultElement.querySelector(".result-title");
+
+        if (dataKey) {
+                const zscoreText = `${dataKey.zscore} (${dataKey.percentile}th)`;
+                titleElement.textContent = label;
+                resultElement.querySelector(".result-value").textContent = zscoreText;
+                resultElement.classList.remove("text-gray");
+                titleElement.classList.remove("text-gray");
+                resultSideElement.textContent = zscoreText;
+                boxElement.style.display = "block";
+        } else {
+                titleElement.textContent = label;
+                resultElement.querySelector(".result-value").textContent = "N/A";
+                resultElement.classList.add("text-gray");
+                titleElement.classList.add("text-gray");
+                boxElement.style.display = "none";
+        }
+    }
+
+    // Thêm sự kiện để cập nhật tuổi khi giá trị dob hoặc current-day thay đổi
+    document.getElementById("dob").addEventListener("change", updateAgeDisplay);
+    document.getElementById("current-day").addEventListener("change", updateAgeDisplay);
+
+    // Cập nhật trạng thái đo khi nhập số tháng
+    document.getElementById("age-months").addEventListener("input", function () {
+            const ageMonths = parseInt(this.value, 10);
+            if (!isNaN(ageMonths)) {
+                updateMeasuredButtons(ageMonths);
+                updateAgeDisplay();
+            }
+        });
+
+    // Cập nhật trạng thái đo khi nhập số ngày
+    document.getElementById("age-days").addEventListener("input", function () {
+            const ageDays = parseInt(this.value, 10);
+            if (!isNaN(ageDays)) {
+                const ageMonths = Math.floor(ageDays / 30.4375);
+                updateMeasuredButtons(ageMonths);
+            }
+        });
+
+    function togglePAL() {
+    const palSelect = document.getElementById("PAL-option");
+    const palValue = document.getElementById("PAL-value"); // Input ẩn lưu giá trị PAL
+    const selectedOption = document.getElementById("age-option").value; // Lấy phương pháp nhập liệu
+    const ageInDays = calculateAgeInDaysFromOption(selectedOption); // Tính số ngày tuổi
+
+    if (ageInDays !== undefined && !isNaN(ageInDays)) {
+        if (ageInDays < 1095) { // Dưới 3 tuổi (3 * 365 = 1095 ngày)
+            // Nếu trẻ dưới 3 tuổi, chỉ cho phép chọn "Not applicable"
+            palSelect.value = "notappli"; // Tự động chuyển về "Not applicable"
+            palValue.value = "notappli"; // Lưu vào input ẩn
+
+            // Vô hiệu hóa các option khác
+            Array.from(palSelect.options).forEach(option => {
+                if (option.value !== "notappli") {
+                    option.disabled = true;
+                }
+            });
+        } else {
+            // Nếu trẻ từ 3 tuổi trở lên, bật lại tất cả các tùy chọn
+            Array.from(palSelect.options).forEach(option => {
+                option.disabled = false;
+            });
+
+            // Giữ nguyên giá trị PAL nếu đã chọn trước đó
+            palValue.value = palSelect.value;
+        }
+    } else {
+        console.log("Age in days could not be determined. Please enter valid age data.");
+    }
+}
+
+  // Submit forrm========================================================================================================  
+    
+   document.getElementById("eer-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const spinner = document.getElementById("spinner");
+    const resultBox = document.getElementById("resultZS");
+    const formData = new FormData(this);
+    const selectedOption = document.getElementById("age-option").value;
+    const weight = document.getElementById("weight").value;
+    const height = document.getElementById("height").value;
+
+    let isValid = true;
+
+    const ageInDays = calculateAgeInDaysFromOption(selectedOption);
+    const isAbove5Years = ageInDays > 1856; // Điều kiện để kiểm tra nếu trẻ > 5 tuổi
+
+    // Ẩn resultBox và hiển thị spinner
+    resultBox.style.display = "none";
+    spinner.style.display = "block";
+
+    // Đặt lại các lỗi hiển thị
+    const fieldsToValidate = [
+      {field: "gender",errorId: "gender-error",groupClass: "gender-group",},
+      {field: "height",errorId: "height-error",groupClass: "height-group",},
+      {field: "weight",errorId: "weight-error",groupClass: "weight-group",},
+    ];
+
+    // Kiểm tra thông tin đầu vào
+    fieldsToValidate.forEach(({ field, errorId, groupClass }) => {
+      const value = document.getElementById(field).value;
+      const errorElement = document.getElementById(errorId);
+      const groupElement = document.querySelector(`.${groupClass}`);
+
+      if (!value) {
+        isValid = false;
+        errorElement.style.display = "block";
+        groupElement?.classList.add("error-border");
+      } else {
+        errorElement.style.display = "none";
+        groupElement?.classList.remove("error-border");
+      }
+
+      // Kiểm tra giới hạn chiều cao
+      if (field === "height" && value) {
+        const heightValue = parseFloat(value);
+
+        if (isAbove5Years) {
+          // Với trẻ > 5 tuổi chỉ cần chiều cao tối thiểu 45 cm
+          if (heightValue < 45) {
+            isValid = false;
+            errorElement.style.display = "block";
+            errorElement.textContent = "Please enter a height of at least 45 cm."; // Thông báo lỗi cho trẻ > 5 tuổi
+            groupElement?.classList.add("error-border");
+          } else {
+            errorElement.style.display = "none";
+            groupElement?.classList.remove("error-border");
+          }
+        } else {
+          // Với trẻ < 5 tuổi, chiều cao phải nằm trong khoảng 45-120 cm
+          if (heightValue < 45 || heightValue > 120) {
+            isValid = false;
+            errorElement.style.display = "block";
+            errorElement.textContent = "Please enter a height between 45 and 120 cm."; // Thông báo lỗi cho trẻ < 5 tuổi
+            groupElement?.classList.add("error-border");
+          } else {
+            errorElement.style.display = "none";
+            groupElement?.classList.remove("error-border");
+          }
+        }
+      }
+    });
+
+    // Xử lý loại bỏ lỗi ngay khi nhập liệu
+    fieldsToValidate.forEach(({ field, errorId, groupClass }) => {
+      const inputField = document.getElementById(field);
+      const errorElement = document.getElementById(errorId);
+      const groupElement = document.querySelector(`.${groupClass}`);
+
+      inputField.addEventListener("input", () => {
+        if (inputField.value.trim() !== "") {
+          errorElement.style.display = "none";
+          groupElement?.classList.remove("error-border");
+        } else {
+          errorElement.style.display = "block";
+          groupElement?.classList.add("error-border");
+        }
+
+        // Loại bỏ lỗi khi nhập liệu cho chiều cao
+        if (field === "height") {
+          const heightValue = parseFloat(inputField.value);
+
+          if (isAbove5Years) {
+            // Với trẻ > 5 tuổi chỉ cần chiều cao tối thiểu 45 cm
+            if (heightValue >= 45) {
+              errorElement.style.display = "none";
+              groupElement?.classList.remove("error-border");
+            } else {
+              errorElement.style.display = "block";
+              errorElement.textContent = "Please enter a height of at least 45 cm."; // Thông báo lỗi
+              groupElement?.classList.add("error-border");
+            }
+          } else {
+            // Với trẻ < 5 tuổi, chiều cao phải nằm trong khoảng 45-120 cm
+            if (heightValue >= 45 && heightValue <= 120) {
+              errorElement.style.display = "none";
+              groupElement?.classList.remove("error-border");
+            } else {
+              errorElement.style.display = "block";
+              errorElement.textContent = "Please enter a height between 45 and 120 cm."; // Thông báo lỗi
+              groupElement?.classList.add("error-border");
+            }
+          }
+        }
+      });
+    });
+
+    // Xử lý loại bỏ lỗi khi chọn ngày sinh (DOB)
+    if (selectedOption === "dob") {
+      const dob = document.getElementById("dob");
+      const currentDay = document.getElementById("current-day");
+      const dobErrorElement = document.getElementById("dob-error");
+      const dobGroupElement = document.querySelector(".input-row");
+
+      // Kiểm tra ngay khi người dùng nhập hoặc chọn DOB
+      [dob, currentDay].forEach((field) => {
+        field.addEventListener("change", () => {
+          if (dob.value && currentDay.value) {
+            dobErrorElement.style.display = "none";
+            dobGroupElement?.classList.remove("error-border");
+          }
+        });
+      });
+
+      if (!dob.value || !currentDay.value) {
+        isValid = false;
+        dobErrorElement.style.display = "block";
+        dobGroupElement?.classList.add("error-border");
+      } else {
+        dobErrorElement.style.display = "none";
+        dobGroupElement?.classList.remove("error-border");
+      }
+    }
+
+    // Kiểm tra tuổi theo tùy chọn "months" và "days"
+    if (selectedOption === "months") {
+      const ageMonths = parseInt(document.getElementById("age-months").value,10,);
+      const ageMonthsErrorElement = document.getElementById("age-months-error");
+      const ageMonthsGroupElement = document.querySelector(".age-months-group");
+
+      const ageMonthsField = document.getElementById("age-months");
+      ageMonthsField.addEventListener("input", () => {
+        if (!isNaN(ageMonthsField.value) && ageMonthsField.value >= 0) {
+          ageMonthsErrorElement.style.display = "none";
+          ageMonthsGroupElement?.classList.remove("error-border");
+        }
+      });
+
+      if (isNaN(ageMonths) || ageMonths < 0) {
+        isValid = false;
+        ageMonthsErrorElement.style.display = "block";
+        ageMonthsGroupElement?.classList.add("error-border");
+      } else {
+        ageMonthsErrorElement.style.display = "none";
+        ageMonthsGroupElement?.classList.remove("error-border");
+      }
+    } else if (selectedOption === "days") {
+      const ageDays = parseInt(document.getElementById("age-days").value,10,);
+      const ageDaysErrorElement = document.getElementById("age-days-error");
+      const ageDaysGroupElement = document.querySelector(".age-days-group");
+
+      const ageDaysField = document.getElementById("age-days");
+      ageDaysField.addEventListener("input", () => {
+        if (!isNaN(ageDaysField.value) && ageDaysField.value >= 0) {
+          ageDaysErrorElement.style.display = "none";
+          ageDaysGroupElement?.classList.remove("error-border");
+        }
+      });
+
+      if (isNaN(ageDays) || ageDays < 0) {
+        isValid = false;
+        ageDaysErrorElement.style.display = "block";
+        ageDaysGroupElement?.classList.add("error-border");
+      } else {
+        ageDaysErrorElement.style.display = "none";
+        ageDaysGroupElement?.classList.remove("error-border");
+      }
+    }
+
+    if (!isValid) {
+      spinner.style.display = "none";
+      return;
+    }
+
+    // Thêm ageInDays vào FormData
+    formData.append("ageInDays", ageInDays);
+
+    // Gửi request
+    fetch("", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
+        .then((responseData) => {
+            data = responseData;
+            spinner.style.display = "none";
+            const measured = document.getElementById("measured").value;
+
+
+            // Hiển thị resultBox
+            resultBox.style.display = "flex";
+            updateResults(data);
+        })
+        .catch((error) => {
+            console.error("There was a problem with the fetch operation:", error);
+            alert("Đã xảy ra lỗi khi xử lý yêu cầu.");
+            spinner.style.display = "none";
+            document.getElementById("text1").style.display = "block";
+            data = "";
+            updateResults(data);
+        });
+
+    // Ẩn placeholder
+    document.getElementById("text1").style.display = "none";
+  });
+
   </script>
 </body>
 </html>
