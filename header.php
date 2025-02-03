@@ -29,7 +29,7 @@
                 echo '<link rel="stylesheet" href="/style/lightCriteria.css">';
                 break;
             case 'eer':
-                echo '<link rel="stylesheet" href="/style/zscore-calculator.css">';
+                echo '<link rel="stylesheet" href="/style/eer.css">';
                 echo '<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>';
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>';
                 echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css"/>';                
