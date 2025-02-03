@@ -259,7 +259,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   
     <script>
-        let data;
         window.addEventListener("resize", resizeCharts); // Gắn sự kiện resize để biểu đồ co dãn
         
         document.addEventListener("DOMContentLoaded", function () {
