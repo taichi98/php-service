@@ -6,6 +6,8 @@
 
 let sidebarOpen = false;
 let gender = "";
+let measured = "";
+let data;
 
 function showAlert(message) {
     const alertBox = document.getElementById("custom-alert");
@@ -408,9 +410,13 @@ function selectGender(selectedGender) {
 }
 
 
-function selectMeasured(measured) {
-    document.getElementById("measured").value = measured;
+function selectMeasured(value) {
+    measured = value; 
+    document.getElementById("recumbent-btn").classList.toggle("active", measured === "l");
+    document.getElementById("standing-btn").classList.toggle("active", measured === "h");
+}
 
+function changeTitle() {  
     const heightLabel = measured === "l" ? "Length (cm):" : "Height (cm):";
     const weightLenheiLabel = measured === "l" ? "Weight for Length:" : "Weight for Height:";
     const lenheiAgeLabel = measured === "l" ? "Length for Age:" : "Height for Age:";
@@ -418,9 +424,6 @@ function selectMeasured(measured) {
     document.querySelector('label[for="height"]').textContent = heightLabel;
     document.querySelector("#weight_lenhei_result .result-title").textContent = weightLenheiLabel;
     document.querySelector("#lenhei_age_result .result-title").textContent = lenheiAgeLabel;
-
-    document.getElementById("recumbent-btn").classList.toggle("active", measured === "l");
-    document.getElementById("standing-btn").classList.toggle("active", measured === "h");
 }
 
 function autoSubmit() {
