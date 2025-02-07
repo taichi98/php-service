@@ -32,9 +32,10 @@ switch ($page) {
 }
 
 // Nếu trang là API (ví dụ: `zscore-calculator`), không include `header.php`
-if ($page !== 'zscore-calculator') {
+if ($page !== 'zscore-calculator' || $page !== 'eer') {
     include 'header.php'; // Chỉ include header khi không phải API
 }
+
 // Kiểm tra và include nội dung tương ứng
 try {
     switch ($page) {
