@@ -8,6 +8,7 @@ let sidebarOpen = false;
 let gender = "";
 let measured = "";
 let data;
+let totalMonths
 
 function showAlert(message) {
     const alertBox = document.getElementById("custom-alert");
@@ -33,20 +34,30 @@ function closeAlert() {
 
 function toggleAgeInput() {
     const selectedOption = document.getElementById("age-option").value;
-    const dobFlatpickr = document.querySelector("#dob")._flatpickr;
+    const dobFlatpickr = document.querySelector("#dob")?._flatpickr; // Kiểm tra sự tồn tại của flatpickr
+    const dobContainer = document.getElementById("dob-container");
+    const monthsInput = document.getElementById("months-input");
+    const daysInput = document.getElementById("days-input");
+
     // Reset required attributes
     document.getElementById("dob").required = false;
     document.getElementById("current-day").required = false;
-    document.getElementById("age-months").required = false;
-    document.getElementById("age-days").required = false;
+    
+    if (daysInput) {
+      document.getElementById("age-days").required = false;
+      document.getElementById("age-days").value = ""; 
+    }
+  
+    if (monthsInput) {
+      document.getElementById("age-months").required = false;
+      document.getElementById("age-months").value = "";
+    }
 
-    document.getElementById("age-days").value = ""; 
-    document.getElementById("age-months").value = "";
-
-    if (selectedOption === "dob") {
-        document.getElementById("dob-container").style.display = "flex";
-        document.getElementById("months-input").style.display = "none";
-        document.getElementById("days-input").style.display = "none";
+    // Kiểm tra nếu các phần tử tồn tại trước khi thay đổi
+    if (selectedOption === "dob" && dobContainer) {
+        dobContainer.style.display = "flex";
+        if (monthsInput) monthsInput.style.display = "none";
+        if (daysInput) daysInput.style.display = "none";
         document.getElementById("age-display").innerHTML = "";
         // Reset giá trị dob
         if (dobFlatpickr) {
@@ -58,19 +69,19 @@ function toggleAgeInput() {
         document.querySelector(".age-months-group")?.classList.remove("error-border");
         document.getElementById("age-days-error").style.display = "none";
         document.querySelector(".age-days-group")?.classList.remove("error-border");
-    } else if (selectedOption === "months") {
-        document.getElementById("dob-container").style.display = "none";
-        document.getElementById("months-input").style.display = "block";
-        document.getElementById("days-input").style.display = "none";
+    } else if (selectedOption === "months" && monthsInput) {
+        if (dobContainer) dobContainer.style.display = "none";
+        monthsInput.style.display = "block";
+        if (daysInput) daysInput.style.display = "none";
         document.getElementById("age-display").innerHTML = "";
         document.getElementById("dob-error").style.display = "none";
         document.querySelector(".input-row")?.classList.remove("error-border");
         document.getElementById("age-days-error").style.display = "none";
         document.querySelector(".age-days-group")?.classList.remove("error-border");
-    } else if (selectedOption === "days") {
-        document.getElementById("dob-container").style.display = "none";
-        document.getElementById("months-input").style.display = "none";
-        document.getElementById("days-input").style.display = "block";
+    } else if (selectedOption === "days" && daysInput) {
+        if (dobContainer) dobContainer.style.display = "none";
+        if (monthsInput) monthsInput.style.display = "none";
+        daysInput.style.display = "block";
         document.getElementById("age-display").innerHTML = "";
         document.getElementById("dob-error").style.display = "none";
         document.querySelector(".input-row")?.classList.remove("error-border");
@@ -78,6 +89,7 @@ function toggleAgeInput() {
         document.querySelector(".age-months-group")?.classList.remove("error-border");
     }
 }
+
 
 function toggleCollapse(contentId, arrowId) {
     const content = document.getElementById(contentId);
@@ -530,7 +542,7 @@ function updateAgeDisplay() {
                 ageMonths--;
             }
 
-            const totalMonths = calculateTotalMonths(ageYears, ageMonths);
+            totalMonths = calculateTotalMonths(ageYears, ageMonths);
 
             // Kiểm tra nếu tuổi vượt quá 228 tháng
             if (totalMonths > 228) {
@@ -543,10 +555,7 @@ function updateAgeDisplay() {
                     });
                 }
                 return;
-            }
-
-            // Gọi hàm kiểm tra trạng thái nút đo
-            updateMeasuredButtons(totalMonths);
+            }            
 
             let ageDisplayText = "";
             if (ageYears === 0 && ageMonths === 0 && ageDays <= 30) {
@@ -581,9 +590,6 @@ function updateAgeDisplay() {
             } else {
                 ageDisplayElement.innerHTML = `<b>Age:</b> ${months}mo`;
             }
-
-            // Gọi hàm kiểm tra trạng thái nút đo
-            updateMeasuredButtons(months);
         } else {
             ageDisplayElement.innerHTML = ""; // Xóa nội dung nếu không có giá trị
         }
