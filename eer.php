@@ -1,3 +1,57 @@
+<?php
+// Hàm gửi dữ liệu POST tới máy chủ Python
+function sendDataToPython($data)
+{
+    $api_url = 'https://python001.up.railway.app/calculate-eer'; // API EER trên máy chủ Python
+    $ch = curl_init($api_url);
+    
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 200) {
+        $decodedResponse = json_decode($response, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return $decodedResponse; // Trả về JSON đã giải mã
+        } else {
+            return ["error" => "Invalid JSON received from API."];
+        }
+    } else {
+        return ["error" => "Failed to connect to Python server or invalid response."];
+    }
+}
+
+// Xử lý form khi người dùng gửi dữ liệu
+$result = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Xóa buffer nếu có
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json');
+
+    $formData = http_build_query([
+        'sex' => $_POST['sex'] ?? '',
+        'ageInDays' => $_POST['ageInDays'] ?? '',
+        'height' => $_POST['height'] ?? '',
+        'weight' => $_POST['weight'] ?? '',
+        'pal' => $_POST['PAL-value'] ?? '' 
+    ]);
+
+    $result = sendDataToPython($formData);
+
+    // Luôn trả về JSON, ngay cả khi có lỗi
+    echo json_encode($result);
+    exit;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -81,8 +135,7 @@ for the energy cost of growth based on average rates of weight gains and rates o
                   <label for="age-option">Age Input Method:</label>
                   <select class="dropbtn" id="age-option" name="age-method" onchange="toggleAgeInput()">
                       <option value="dob" selected>Date of Birth</option>
-                      <option value="months">Age in Months</option>
-                      <option value="days">Age in Days</option>
+                      <option value="months" >Age in Months</option>
                   </select>
               </div>
 
@@ -104,11 +157,11 @@ for the energy cost of growth based on average rates of weight gains and rates o
                   <input type="number" id="age-months" name="age-months" min="0" placeholder="Enter age in months" onchange="togglePAL();" />
               </div>
 
-              <!-- Age in Days Input -->
+              <!-- Age in Days Input 
               <div id="days-input" class="age-days-group" style="display: none;">
                   <label for="age-days">Age in Days:</label>
                   <input type="number" id="age-days" name="age-days" min="0" placeholder="Enter age in days" onchange="togglePAL();" />
-              </div>
+              </div> -->
           </div>
             <div id="age-display" style="margin-bottom: 10px; color: red"></div>
             <span id="dob-error" style="margin-bottom: 5px; margin-top: -15px; font-size: 12px; color: red; display: none;">
@@ -120,13 +173,6 @@ for the energy cost of growth based on average rates of weight gains and rates o
             <span id="age-months-error" style="margin-bottom: 5px; margin-top: -15px; font-size: 12px; color: red; display: none;">
                     Please enter the age (in months).
             </span>
-            <!-- Measured -->
-            <label for="measured">Measured:</label>
-            <div class="select-group">
-                <button type="button" id="recumbent-btn" onclick="selectMeasured('l'); autoSubmit()" class="active">Recumbent</button>
-                <button type="button" id="standing-btn" onclick="selectMeasured('h'); autoSubmit()">Standing</button>
-            </div>
-            <input type="hidden" id="measured" name="measure" value="l" />
 
             <!-- Height -->
             <div id="height-select-group" class="height-group">
@@ -172,7 +218,7 @@ for the energy cost of growth based on average rates of weight gains and rates o
               </p>                    
               <div id="resultZS" style="<?php echo isset($result) ? 'display: block;' : 'display: none;'; ?>">
                   <div class="result-item">
-
+                    <p id="eer-result"></p>
                   </div>
               </div>
           </div>
@@ -254,29 +300,6 @@ for the energy cost of growth based on average rates of weight gains and rates o
         }
     });
   //=================================================================================================
-    
-    function updateResultField(resultId, resultSideId, boxId, label, dataKey) {
-        const resultElement = document.getElementById(resultId);
-        const resultSideElement = document.getElementById(resultSideId);
-        const boxElement = document.getElementById(boxId);
-        const titleElement = resultElement.querySelector(".result-title");
-
-        if (dataKey) {
-                const zscoreText = `${dataKey.zscore} (${dataKey.percentile}th)`;
-                titleElement.textContent = label;
-                resultElement.querySelector(".result-value").textContent = zscoreText;
-                resultElement.classList.remove("text-gray");
-                titleElement.classList.remove("text-gray");
-                resultSideElement.textContent = zscoreText;
-                boxElement.style.display = "block";
-        } else {
-                titleElement.textContent = label;
-                resultElement.querySelector(".result-value").textContent = "N/A";
-                resultElement.classList.add("text-gray");
-                titleElement.classList.add("text-gray");
-                boxElement.style.display = "none";
-        }
-    }
 
     // Thêm sự kiện để cập nhật tuổi khi giá trị dob hoặc current-day thay đổi
     document.getElementById("dob").addEventListener("change", updateAgeDisplay);
@@ -286,51 +309,51 @@ for the energy cost of growth based on average rates of weight gains and rates o
     document.getElementById("age-months").addEventListener("input", function () {
             const ageMonths = parseInt(this.value, 10);
             if (!isNaN(ageMonths)) {
-                updateMeasuredButtons(ageMonths);
+                //updateMeasuredButtons(ageMonths);
                 updateAgeDisplay();
             }
         });
 
-    // Cập nhật trạng thái đo khi nhập số ngày
-    document.getElementById("age-days").addEventListener("input", function () {
-            const ageDays = parseInt(this.value, 10);
-            if (!isNaN(ageDays)) {
-                const ageMonths = Math.floor(ageDays / 30.4375);
-                updateMeasuredButtons(ageMonths);
-            }
-        });
 
     function togglePAL() {
-    const palSelect = document.getElementById("PAL-option");
-    const palValue = document.getElementById("PAL-value"); // Input ẩn lưu giá trị PAL
-    const selectedOption = document.getElementById("age-option").value; // Lấy phương pháp nhập liệu
-    const ageInDays = calculateAgeInDaysFromOption(selectedOption); // Tính số ngày tuổi
+      const palSelect = document.getElementById("PAL-option");
+      const palValue = document.getElementById("PAL-value"); // Input ẩn lưu giá trị PAL
+      const selectedOption = document.getElementById("age-option").value; // Lấy phương pháp nhập liệu
+      const ageInDays = calculateAgeInDaysFromOption(selectedOption); // Tính số ngày tuổi
 
-    if (ageInDays !== undefined && !isNaN(ageInDays)) {
-        if (ageInDays < 1095) { // Dưới 3 tuổi (3 * 365 = 1095 ngày)
-            // Nếu trẻ dưới 3 tuổi, chỉ cho phép chọn "Not applicable"
-            palSelect.value = "notappli"; // Tự động chuyển về "Not applicable"
-            palValue.value = "notappli"; // Lưu vào input ẩn
+      if (ageInDays !== undefined && !isNaN(ageInDays)) {
+          if (ageInDays < 1095) { // Dưới 3 tuổi (3 * 365 = 1095 ngày)
+              // Nếu trẻ dưới 3 tuổi, chỉ cho phép chọn "Not applicable"
+              palSelect.value = "notappli"; // Tự động chuyển về "Not applicable"
+              palValue.value = "notappli"; // Lưu vào input ẩn
 
-            // Vô hiệu hóa các option khác
+              // Vô hiệu hóa các option khác
+              Array.from(palSelect.options).forEach(option => {
+                  if (option.value !== "notappli") {
+                      option.disabled = true;
+                  }
+              });
+          } else {
             Array.from(palSelect.options).forEach(option => {
-                if (option.value !== "notappli") {
-                    option.disabled = true;
+                if (option.value === "notappli") {
+                    option.disabled = true; // Vô hiệu hóa tùy chọn "Not applicable"
+                } else {
+                    option.disabled = false; // Bật lại các tùy chọn còn lại
                 }
             });
-        } else {
-            // Nếu trẻ từ 3 tuổi trở lên, bật lại tất cả các tùy chọn
-            Array.from(palSelect.options).forEach(option => {
-                option.disabled = false;
-            });
 
-            // Giữ nguyên giá trị PAL nếu đã chọn trước đó
-            palValue.value = palSelect.value;
+            // Nếu đã có giá trị PAL trước đó, giữ nguyên giá trị đó
+            if (palSelect.value === "notappli") {
+                palValue.value = "inactive"; // Nếu trước đó là "Not applicable", chuyển thành "inactive"
+                palSelect.value = "inactive";
+            } else {
+                palValue.value = palSelect.value;
+            }
         }
-    } else {
-        console.log("Age in days could not be determined. Please enter valid age data.");
-    }
-}
+      } else {
+          console.log("Age in days could not be determined. Please enter valid age data.");
+      }
+  }
 
   // Submit forrm========================================================================================================  
     
@@ -541,12 +564,11 @@ for the energy cost of growth based on average rates of weight gains and rates o
         .then((responseData) => {
             data = responseData;
             spinner.style.display = "none";
-            const measured = document.getElementById("measured").value;
-
-
+            const eerValue = responseData.EER;
+            // Sử dụng dữ liệu nhận được để cập nhật giao diện, ví dụ:
+            document.getElementById('eer-result').innerText = `EER: ${eerValue} kcal/day`;
             // Hiển thị resultBox
             resultBox.style.display = "flex";
-            updateResults(data);
         })
         .catch((error) => {
             console.error("There was a problem with the fetch operation:", error);
@@ -554,7 +576,6 @@ for the energy cost of growth based on average rates of weight gains and rates o
             spinner.style.display = "none";
             document.getElementById("text1").style.display = "block";
             data = "";
-            updateResults(data);
         });
 
     // Ẩn placeholder
