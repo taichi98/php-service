@@ -1,4 +1,4 @@
-/**
+/*
  * Hàm chung để ẩn/hiện nội dung và điều chỉnh biểu tượng mũi tên.
  * @param {string} contentId - ID của phần tử nội dung cần ẩn/hiện.
  * @param {string} arrowId - ID của biểu tượng mũi tên cần xoay.
