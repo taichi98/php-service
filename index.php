@@ -35,7 +35,9 @@ switch ($page) {
 if ($page !== 'zscore-calculator') {
     include 'header.php'; // Chỉ include header khi không phải API
 }
-
+if ($page !== 'eer') {
+    include 'header.php'; // Chỉ include header khi không phải API
+}
 // Kiểm tra và include nội dung tương ứng
 try {
     switch ($page) {
