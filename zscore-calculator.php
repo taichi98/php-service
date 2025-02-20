@@ -2,7 +2,7 @@
 // Hàm gửi dữ liệu POST tới máy chủ Python
 function sendDataToPython($data)
 {
-    $api_url = 'https://python001.up.railway.app/zscore-calculator';
+    $api_url = 'http://python001.duckdns.org:5055';
     $ch = curl_init($api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
