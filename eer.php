@@ -2,7 +2,7 @@
 // Hàm gửi dữ liệu POST tới máy chủ Python
 function sendDataToPython($data)
 {
-    $api_url = 'https://python001.up.railway.app/calculate-eer'; // API EER trên máy chủ Python
+    $api_url = 'http://python001.duckdns.org:5055/calculate-eer'; // API EER trên máy chủ Python
     $ch = curl_init($api_url);
     
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
